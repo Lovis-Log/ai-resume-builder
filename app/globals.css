@@ -1,26 +1,163 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Resume Sans";
+  src: url("/fonts/SourceSans3-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Resume Sans";
+  src: url("/fonts/SourceSans3-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Resume Sans";
+  src: url("/fonts/SourceSans3-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f5f4f0;
+  --foreground: #1c1917;
+  --card: #ffffff;
+  --border: #e7e5e4;
+  --muted: #78716c;
+  --accent: #0f766e;
+  --accent-hover: #115e59;
+  --accent-soft: #ccfbf1;
+  --success: #15803d;
+  --success-soft: #dcfce7;
+  --warning: #b45309;
+  --warning-soft: #fef3c7;
+  --danger: #b91c1c;
+  --danger-soft: #fee2e2;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--background);
 }
 
 body {
+  margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--foreground);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.resume-sheet {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 15mm;
+  background: #ffffff;
+  color: #171717;
+  font-family: "Resume Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 10pt;
+  line-height: 1.32;
+  box-shadow: 0 20px 60px rgba(28, 25, 23, 0.12);
+}
+
+.resume-sheet h1,
+.resume-sheet h2,
+.resume-sheet h3,
+.resume-sheet p {
+  margin: 0;
+}
+
+.resume-sheet .resume-name {
+  font-size: 19pt;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.resume-sheet .resume-contact {
+  margin-top: 2px;
+  font-size: 9.5pt;
+  color: #525252;
+}
+
+.resume-sheet .resume-section {
+  margin-top: 10pt;
+}
+
+.resume-sheet .resume-section-title {
+  padding-bottom: 2pt;
+  border-bottom: 0.75pt solid #d4d4d4;
+  font-size: 10.5pt;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.resume-sheet .resume-entry {
+  margin-top: 5pt;
+}
+
+.resume-sheet .resume-entry-title {
+  font-weight: 600;
+}
+
+.resume-sheet .resume-meta {
+  margin-top: 1pt;
+  font-size: 9.5pt;
+  color: #525252;
+}
+
+.resume-sheet .resume-bullet {
+  display: flex;
+  gap: 4pt;
+  margin-top: 1.5pt;
+}
+
+.resume-sheet .resume-bullet-mark {
+  width: 9pt;
+  flex: none;
+}
+
+@media print {
+  .resume-sheet {
+    box-shadow: none;
+    margin: 0;
+  }
 }

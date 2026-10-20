@@ -1,36 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Resume Builder
 
-## Getting Started
+An AI-assisted resume builder for early-career candidates and new grads. Build a fixed six-section resume, see a free 10-check score, tailor it to a job description, and export an A4, ATS-safe PDF.
 
-First, run the development server:
+## Stack
+
+- Next.js 16.4 App Router, React 19, Tailwind CSS 4
+- Neon Postgres + Neon Auth (Google only)
+- Drizzle ORM + `pg`
+- DeepSeek `deepseek-flash`
+- `@react-pdf/renderer`
+- Vercel
+
+The full product, architecture, and implementation plan is in [plan.md](./plan.md).
+
+## Quick start
 
 ```bash
+npm install
+cp .env.example .env.local
+# fill in DATABASE_URL, DATABASE_URL_UNPOOLED,
+# NEON_AUTH_BASE_URL, NEON_AUTH_COOKIE_SECRET, DEEPSEEK_API_KEY
+npm run db:migrate
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Neon Auth
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Create a Neon project and enable Auth on the branch.
+2. Set `NEON_AUTH_BASE_URL` to the full branch auth URL (including `/neondb/auth`).
+3. Generate a cookie secret with `openssl rand -base64 32` and set `NEON_AUTH_COOKIE_SECRET`.
+4. In Neon Console → Auth → OAuth providers → Google, add a Google OAuth client.
+   - Authorized redirect URI: `{NEON_AUTH_BASE_URL}/callback/google`.
+5. Add `http://localhost:3000` and your production domain as trusted domains.
+6. Disable email/password sign-up; the app is Google-only.
 
-## Learn More
+### Database
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run db:generate   # generate SQL from lib/db/schema.ts
+npm run db:migrate    # apply against DATABASE_URL_UNPOOLED
+npm run db:studio
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Enable Neon Auth before applying the optional `neon_auth.user` foreign-key
+migration. App data still cascades from `profiles` even without the cross-schema
+FK.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Local helpers
 
-## Deploy on Vercel
+```bash
+# Sign in once, then copy the auth user id from neon_auth.user
+npm run seed -- <user-id>
+npm run seed:grant-pro -- <user-id>
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## AI
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+AI features are opt-in. The consent dialog explains that resume text and job
+descriptions are sent to DeepSeek, which processes data in the PRC and may use
+inputs for model improvement. The score, editor, autosave, and PDF export do not
+call an AI provider.
+
+The app uses `deepseek-flash` with thinking disabled for latency. Prompts are in
+`lib/ai/prompts.ts`; JSON output is validated with Zod. Failed or invalid calls
+do not consume an AI action.
+
+## Billing
+
+Billing provider integration is intentionally deferred. The app has a
+provider-agnostic adapter (`lib/billing/`) and a `manual` adapter for local Pro
+testing. Set `BILLING_PROVIDER=manual` (default). Paid launch is blocked until a
+real merchant-of-record provider is connected. The recommended target is Creem;
+Dodo Payments is the backup. See `plan.md` for the research and trade-offs.
+
+## Tests
+
+```bash
+npm run typecheck
+npm test
+npm run test:e2e
+```
+
+The PDF extraction test uses `pdftotext` when available. Install Poppler to run
+it locally (`brew install poppler`, `apt-get install poppler-utils`, or the
+Windows Poppler build). Without it, the PDF test still checks page size and
+count.
+
+## Deployment
+
+- Deploy to Vercel (Pro plan for commercial use).
+- Set all environment variables for Production, Preview, and Development.
+- Use the Neon/Vercel integration for branch-aware `DATABASE_URL` and
+  `NEON_AUTH_BASE_URL`.
+- Run migrations against the target Neon branch before deploying.
+- Google OAuth redirect URIs are per Neon Auth branch; use Neon's shared
+  credentials for previews or register each branch.
+- `NEXT_PUBLIC_APP_URL` must be the production origin.
+
+## Scope guardrails
+
+Fixed sections only: Contact, Summary, Experience, Education, Projects, Skills.
+One A4 template. No drag-and-drop, custom sections, rich formatting, teams,
+sharing, folders, or mobile editing. The editor is desktop-only; the marketing
+page is responsive.

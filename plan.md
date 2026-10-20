@@ -1928,4 +1928,44 @@ One happy path:
 
 ---
 
+## 15. Implementation status (2026-10-20)
+
+**Built**
+- Google-only Neon Auth shell, protected `(app)` routes, `proxy.ts`, session DAL, profile upsert, sign-out, and account deletion.
+- Dashboard with create/rename/delete, free resume limit, usage summary, upgrade modal, and empty state.
+- Six-section editor (Contact, Summary, Experience, Education, Projects, Skills), debounced autosave, stale-tab conflict handling, localStorage draft recovery, and stale-save mutex.
+- A4 live preview, 10-check score with fix links, and `@react-pdf/renderer` PDF export with embedded Source Sans 3, hyphenation disabled, and ATS extraction tests.
+- DeepSeek client with JSON-schema output, Zod validation, source-quote checks, consent modal, per-action usage reservation, idempotency, and rate limits.
+- Three AI writing routes (summary, bullets, improve) and two-step job tailoring (keyword analysis + rewrite) with per-item review.
+- Provider-agnostic billing adapter, `manual` Pro adapter, entitlement math (free lifetime limits, Pro 500 included + 500 overage, $25 cap), billing page, and upgrade flows.
+- Landing page, pricing, FAQ, privacy/terms, metadata, OG image, robots, sitemap, JSON-LD, and Vercel Analytics.
+- Initial Drizzle migration in `drizzle/0000_init.sql`, including an optional `neon_auth.user` FK added in a guarded DO block.
+
+**Verified**
+- `npm run typecheck` — pass.
+- `npm run lint` — pass.
+- `npm test` — 21 tests pass (score, entitlements, schema, PDF render/extraction where `pdftotext` is available).
+- `npm run build` — pass. Static: `/`, `/login`, `/privacy`, `/terms`, `/robots.txt`, `/sitemap.xml`, `/opengraph-image`. Partial/dynamic: `/dashboard`, `/resume/[id]`, `/billing`, `/settings`, API routes.
+- Production smoke test: `/` 200 with hero, `/privacy` 200, `/login` 200 with “Continue with Google”, `/dashboard` 307 → `/login`.
+- Note: `/login` is intentionally static now; it does not perform a server-side session check before rendering.
+
+**Implementation deviations / notes**
+- `lib/auth/dal.ts` is session-only; profile writes live in `lib/auth/profile.ts`. This keeps `/login` and the public header from requiring `DATABASE_URL`.
+- `lib/db/client.ts` uses `pg.Pool`, the pooled URL, and `attachDatabasePool` on Vercel.
+- `@neondatabase/auth` is pinned to `0.6.0-beta`; `@react-pdf/renderer` is pinned to `4.7.0`.
+- The `neon_auth.user` FK is optional and only added if the auth schema exists when the migration runs. Account deletion also explicitly deletes the profile, so app data cascades even without the FK.
+- Billing remains `manual`. Creem is still the recommended target; no provider adapter is implemented yet.
+
+**Still required before a real launch**
+1. Create `.env.local`/Vercel envs: `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET`, `DEEPSEEK_API_KEY`, `NEXT_PUBLIC_APP_URL`.
+2. Enable Neon Auth and configure Google OAuth redirect URI `{NEON_AUTH_BASE_URL}/callback/google`, trusted domains, and disable email/password signup.
+3. Run `npm run db:migrate` against the target Neon branch.
+4. Test real Google sign-in, autosave, AI routes with a live DeepSeek key, and PDF download in a configured environment.
+5. Connect and verify a billing provider (Creem recommended), then enable checkout.
+6. Install Playwright Chromium and run the E2E suite in CI or locally.
+7. Review privacy/terms with counsel and replace the placeholder support address.
+8. Deploy to Vercel Pro and verify font tracing for the PDF route in the production runtime.
+
+---
+
 *End of plan.*
