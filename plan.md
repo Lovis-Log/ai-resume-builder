@@ -1462,14 +1462,15 @@ app/
 proxy.ts                           # Next 16 route protection
 next.config.ts
 drizzle.config.ts
-vitest.config.ts
+vitest.config.mts
 playwright.config.ts
 
 lib/
   auth/
     server.ts                      # createNeonAuth
     client.ts                      # createAuthClient
-    dal.ts                         # getCurrentUser, requireUser, getOrCreateProfile
+    dal.ts                         # getCurrentUser, requireUser, requireUserForPage, requireUserForApi
+    profile.ts                     # getOrCreateProfile, requireProfile, setAiConsent
   db/
     index.ts                       # pg Pool + Drizzle
     schema.ts                      # Drizzle tables
