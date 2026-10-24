@@ -4,7 +4,7 @@ import { LegalPage } from "@/components/marketing/legal-page";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "How Resume Builder collects, uses, and deletes your data, including AI processing by DeepSeek.",
+    "How Lume collects, uses, and deletes your data, including AI processing by DeepSeek.",
   alternates: { canonical: "/privacy" },
 };
 
@@ -12,7 +12,7 @@ export default function PrivacyPage() {
   return (
     <LegalPage
       title="Privacy Policy"
-      description="What we collect, why we collect it, and the choices you have. This policy covers the Resume Builder web app and its AI features."
+      description="What we collect, why we collect it, and the choices you have. This policy covers the Lume web app and its AI features."
     >
       <section>
         <h2 className="text-lg font-semibold text-stone-900">
@@ -155,10 +155,10 @@ export default function PrivacyPage() {
         <p className="mt-2">
           Questions or requests:{" "}
           <a
-            href="mailto:support@resumebuilder.app"
+            href="mailto:support@lume.app"
             className="font-medium text-[var(--accent)] underline underline-offset-2"
           >
-            support@resumebuilder.app
+            support@lume.app
           </a>
           .
         </p>

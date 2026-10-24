@@ -22,7 +22,7 @@ function HeaderSkeleton() {
   return (
     <header className="border-b border-[var(--border)] bg-white/80">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-        <Skeleton className="h-6 w-36" />
+        <Skeleton className="h-6 w-24" />
         <Skeleton className="h-9 w-28" />
       </div>
     </header>

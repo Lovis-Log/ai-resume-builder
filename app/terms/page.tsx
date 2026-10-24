@@ -4,7 +4,7 @@ import { LegalPage } from "@/components/marketing/legal-page";
 export const metadata: Metadata = {
   title: "Terms of Service",
   description:
-    "The terms that govern your use of Resume Builder, including free and Pro plans, AI output, and cancellation.",
+    "The terms that govern your use of Lume, including free and Pro plans, AI output, and cancellation.",
   alternates: { canonical: "/terms" },
 };
 
@@ -12,14 +12,14 @@ export default function TermsPage() {
   return (
     <LegalPage
       title="Terms of Service"
-      description="The rules for using Resume Builder. By creating an account, you agree to these terms."
+      description="The rules for using Lume. By creating an account, you agree to these terms."
     >
       <section>
         <h2 className="text-lg font-semibold text-stone-900">
           1. The service
         </h2>
         <p className="mt-2">
-          Resume Builder helps you create, score, tailor, and export resumes. It
+          Lume helps you create, score, tailor, and export resumes. It
           includes a manual editor, a rule-based score, optional AI writing and job
           tailoring, and PDF export. Features may change as the product develops.
         </p>
@@ -144,10 +144,10 @@ export default function TermsPage() {
         <p className="mt-2">
           Questions about these terms:{" "}
           <a
-            href="mailto:support@resumebuilder.app"
+            href="mailto:support@lume.app"
             className="font-medium text-[var(--accent)] underline underline-offset-2"
           >
-            support@resumebuilder.app
+            support@lume.app
           </a>
           .
         </p>

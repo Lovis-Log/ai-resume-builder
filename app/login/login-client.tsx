@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { ArrowRight, Loader2, ShieldCheck } from "lucide-react";
 import { authClient } from "@/lib/auth/client";
+import { LumeLogo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 
 function GoogleMark() {
@@ -49,15 +50,17 @@ export function LoginClient() {
   return (
     <main className="grid min-h-screen lg:grid-cols-[1.1fr_0.9fr]">
       <section className="flex flex-col justify-between bg-[var(--accent)] px-8 py-10 text-white lg:px-16 lg:py-14">
-        <Link href="/" className="text-lg font-semibold tracking-tight">
-          Resume Builder
+        <Link href="/" aria-label="Lume home">
+          <LumeLogo tone="white" id="login" />
         </Link>
-        <div className="max-w-xl py-16">
+        <div className="max-w-2xl py-16">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-teal-100">
             Built for new grads
           </p>
           <h1 className="mt-4 text-4xl font-semibold leading-tight tracking-tight lg:text-5xl">
-            A resume that gets past the bots.
+            Built to be read.
+            <br />
+            <span className="text-teal-100/80">Written to be remembered.</span>
           </h1>
           <p className="mt-5 max-w-lg text-lg leading-relaxed text-teal-50">
             Start with your experience. Add AI writing when you need it, tailor

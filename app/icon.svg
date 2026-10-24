@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="mark" x1="12" y1="5" x2="58" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7ed3ff"/>
+      <stop offset="0.46" stop-color="#4d8bfa"/>
+      <stop offset="1" stop-color="#a07af7"/>
+    </linearGradient>
+    <linearGradient id="page" x1="38" y1="10" x2="58" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e8f0ff" stop-opacity="0.94"/>
+    </linearGradient>
+    <linearGradient id="fold" x1="52" y1="8" x2="60" y2="17" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#d5e6ff"/>
+      <stop offset="1" stop-color="#8fa9f6"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="2.5" stdDeviation="3.2" flood-color="#4b67d8" flood-opacity="0.22"/>
+    </filter>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="#ffffff"/>
+  <g transform="translate(6.4 6.4) scale(0.8)" filter="url(#shadow)">
+    <path d="M18 5H36V33A2 2 0 0 0 38 35H50A10 10 0 0 1 60 45V48A10 10 0 0 1 50 58H18A10 10 0 0 1 8 48V15A10 10 0 0 1 18 5Z" fill="url(#mark)"/>
+    <path d="M14.5 15.5A7.5 7.5 0 0 1 22 8" stroke="#ffffff" stroke-opacity="0.58" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M44 10H52.5L60 17.5V37A8 8 0 0 1 52 45H44A8 8 0 0 1 36 37V18A8 8 0 0 1 44 10Z" fill="url(#page)" stroke="#ffffff" stroke-opacity="0.7" stroke-width="0.8"/>
+    <path d="M52.5 10L60 17.5H54.4A1.9 1.9 0 0 1 52.5 15.6V10Z" fill="url(#fold)"/>
+    <path d="M44 24H55.5M44 30H55.5M44 36H51" stroke="#9bbaf5" stroke-width="2.8" stroke-linecap="round"/>
+  </g>
+</svg>

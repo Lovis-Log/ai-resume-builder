@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Quicksand } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { ToastProvider } from "@/components/ui/toast";
 import "./globals.css";
+import "./landing.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,28 +16,33 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const quicksand = Quicksand({
+  variable: "--font-lume",
+  subsets: ["latin"],
+});
+
 const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
   title: {
-    default: "Resume Builder — AI resumes for new grads",
-    template: "%s | Resume Builder",
+    default: "Lume — AI resumes for new grads",
+    template: "%s | Lume",
   },
   description:
     "Build an ATS-safe, job-tailored resume with AI. Get a free resume score, live preview, and a clean one-click PDF.",
-  applicationName: "Resume Builder",
+  applicationName: "Lume",
   openGraph: {
     type: "website",
-    siteName: "Resume Builder",
-    title: "Resume Builder — AI resumes for new grads",
+    siteName: "Lume",
+    title: "Lume — AI resumes for new grads",
     description:
       "Build an ATS-safe, job-tailored resume with AI. Free score, live preview, one-click PDF.",
     url: "/",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Resume Builder — AI resumes for new grads",
+    title: "Lume — AI resumes for new grads",
     description:
       "Build an ATS-safe, job-tailored resume with AI. Free score, live preview, one-click PDF.",
   },
@@ -56,7 +62,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full`}
+      className={`${geistSans.variable} ${geistMono.variable} ${quicksand.variable} h-full`}
     >
       <body className="min-h-full antialiased">
         <ToastProvider>{children}</ToastProvider>

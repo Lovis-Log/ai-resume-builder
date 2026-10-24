@@ -1,6 +1,6 @@
 # AI Resume Builder — Full Build Plan
 
-> **Last updated:** 2026-10-20
+> **Last updated:** 2026-10-24
 > **Status:** Interview complete. Product spec, architecture, and implementation plan are aligned. No product code has been written.
 > **Billing provider:** integration deferred by choice (see §14). Everything else is locked.
 > **How to use this file:** this is the single reference for the project. Update it when a decision changes; do not let code and this document drift.
@@ -1778,7 +1778,7 @@ One happy path:
 
 ## 11. Assumptions
 
-1. Working name is “Resume Builder” in a single brand config; rename later.
+1. Public brand is **Lume**, from the supplied brand kit. The landing, metadata, login, legal pages, app icon, and OG image use Lume; the internal package and repository names remain `resume-builder`.
 2. English-only, global market; **A4 page size** (210×297 mm). US Letter is a later option.
 3. Free “1 resume” means one concurrent resume; deleting frees the slot but lifetime AI/PDF counters persist.
 4. Section order: Contact header, Summary, Experience, Education, Projects, Skills.
@@ -1869,6 +1869,7 @@ One happy path:
 - `@react-pdf/renderer`; HTML/CSS preview.
 - Vercel logs + Analytics.
 - Critical-path tests.
+- Public brand: Lume (`resume-builder` remains the internal package/repo name).
 - No fixed deadline.
 
 ---
@@ -1930,6 +1931,15 @@ One happy path:
 ---
 
 ## 15. Implementation status (2026-10-20)
+
+**2026-10-24 — Lume landing rebrand**
+- Rebuilt the public landing page in the supplied motion/design direction: sky hero, HTML/CSS editor mockup, scroll-linked feature cards, score demo, single ATS-template showcase, pricing, FAQ, and final CTA.
+- Replaced the old text mark with the Lume brand kit direction: SVG gradient mark, tightened Quicksand wordmark, app icon/favicon, and OG image.
+- Hero line: “Built to be read. Written to be remembered.” Template line: “Quiet page. Loud achievements.”
+- Nav now links How it works / Features / Templates / Pricing / FAQ plus Sign in. It uses the approved blue-hour liquid-glass values: `#244d88`/`#3b68a5`/`#7194c2` sky tokens, white nav text, white/purple CTA, pointer-tracked specular, and the reference caustic timing.
+- Hero sky uses the four cloud WebP layers extracted from `Lume_Blue_Hour_Hero.html`, with the reference sizes, positions, opacity, and 47s/56s/67s/71s drift. Headline sizing, weights, gradient, CTA shadows, and product entrance timing match the reference.
+- The fixed nav keeps the reference glass at the top and switches to a deeper blue glass when scrolled so white nav text stays legible. The editor mockup preserves the existing HTML preview; the floating score chip was removed to match the reference.
+- Rebranded visible product surfaces and metadata to Lume. Support address is a placeholder: `support@lume.app`.
 
 **Built**
 - Google-only Neon Auth shell, protected `(app)` routes, `proxy.ts`, session DAL, profile upsert, sign-out, and account deletion.

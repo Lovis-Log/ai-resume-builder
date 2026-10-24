@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { LumeLogo } from "@/components/brand/logo";
 
 export function LegalPage({
   title,
@@ -14,8 +15,8 @@ export function LegalPage({
     <div className="min-h-screen bg-[var(--background)]">
       <header className="border-b border-[var(--border)] bg-white/80">
         <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-6">
-          <Link href="/" className="text-lg font-semibold tracking-tight">
-            Resume Builder
+          <Link href="/" aria-label="Lume home">
+            <LumeLogo id="legal" />
           </Link>
           <Link href="/" className="text-sm text-stone-500 hover:text-stone-900">
             Back to home
@@ -50,7 +51,7 @@ export function LegalPage({
           <Link href="/terms" className="hover:text-stone-900">
             Terms
           </Link>
-          <a href="mailto:support@resumebuilder.app" className="hover:text-stone-900">
+          <a href="mailto:support@lume.app" className="hover:text-stone-900">
             Support
           </a>
         </div>

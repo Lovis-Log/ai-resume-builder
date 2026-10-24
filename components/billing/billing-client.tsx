@@ -139,9 +139,9 @@ export function BillingClient({ entitlements }: { entitlements: Entitlements }) 
               soon. If you need early access, email{" "}
               <a
                 className="underline underline-offset-2"
-                href="mailto:support@resumebuilder.app"
+                href="mailto:support@lume.app"
               >
-                support@resumebuilder.app
+                support@lume.app
               </a>
               .
             </p>

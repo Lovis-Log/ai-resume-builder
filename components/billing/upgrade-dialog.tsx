@@ -114,9 +114,9 @@ export function UpgradeDialog({
                 access, email{" "}
                 <a
                   className="underline underline-offset-2"
-                  href="mailto:support@resumebuilder.app"
+                  href="mailto:support@lume.app"
                 >
-                  support@resumebuilder.app
+                  support@lume.app
                 </a>
                 .
               </p>
