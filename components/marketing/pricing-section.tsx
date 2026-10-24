@@ -65,7 +65,7 @@ export function PricingSection({
               ))}
             </ul>
 
-            <Link href="/login" className="price-cta price-cta-light">
+            <Link href="/dashboard" className="price-cta price-cta-light">
               Start free — no card
               <ArrowUpRight />
             </Link>
@@ -106,7 +106,7 @@ export function PricingSection({
               ))}
             </ul>
 
-            <Link href="/login" className="price-cta price-cta-pro">
+            <Link href="/dashboard" className="price-cta price-cta-pro">
               {billingEnabled
                 ? "Start free, upgrade later"
                 : "Start free — Pro coming soon"}

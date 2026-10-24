@@ -1,10 +1,12 @@
-import { LoginClient } from "./login-client";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Sign in",
-  description: "Sign in with Google to build your resume.",
+  description: "Enter the Lume resume workspace.",
 };
 
 export default function LoginPage() {
-  return <LoginClient />;
+  // Authentication is intentionally disabled for the local product demo.
+  redirect("/dashboard");
 }

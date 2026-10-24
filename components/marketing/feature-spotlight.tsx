@@ -10,7 +10,7 @@ export function FeatureSpotlight({
   points,
   note,
   ctaLabel,
-  ctaHref = "/login",
+  ctaHref = "/dashboard",
   reverse = false,
   tone = "white",
   children,

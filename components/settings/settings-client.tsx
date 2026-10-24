@@ -1,218 +1,295 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
-  ArrowLeft,
-  LogOut,
+  ArrowRight,
+  Check,
+  Database,
+  Download,
+  FileJson,
+  RotateCcw,
   ShieldCheck,
   Sparkles,
-  Trash2,
-  TriangleAlert,
+  UserRound,
 } from "lucide-react";
-import { deleteAccount, signOut } from "@/app/actions/account";
-import { AiConsentDialog } from "@/components/ai/ai-dialogs";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Modal } from "@/components/ui/modal";
-import { formatShortDate } from "@/lib/utils";
+import { AppModal } from "@/components/app/app-modal";
+import { AppTopbar } from "@/components/app/app-topbar";
+import { useDemoStore } from "@/components/app/demo-store";
+import { useToast } from "@/components/ui/toast";
+import { downloadWorkspaceJson } from "@/lib/demo/download";
+import { formatLongDate, initialsFromName } from "@/lib/demo/format";
 
-export function SettingsClient({
-  name,
-  email,
-  aiConsentAt,
-}: {
-  name: string;
-  email: string;
-  aiConsentAt: string | null;
-}) {
-  const router = useRouter();
-  const [consentOpen, setConsentOpen] = useState(false);
-  const [consented, setConsented] = useState(Boolean(aiConsentAt));
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [confirm, setConfirm] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [pending, startTransition] = useTransition();
+export function SettingsClient() {
+  const { profile, resumes, updateProfile, resetDemo } = useDemoStore();
+  const { toast } = useToast();
+  const [name, setName] = useState(profile.name);
+  const [email, setEmail] = useState(profile.email);
+  const [resetOpen, setResetOpen] = useState(false);
 
-  function handleDelete() {
-    if (confirm !== "DELETE") return;
+  const dirty = name !== profile.name || email !== profile.email;
 
-    startTransition(async () => {
-      setError(null);
-      try {
-        await deleteAccount();
-        router.replace("/");
-        router.refresh();
-      } catch (deleteError) {
-        setError(
-          deleteError instanceof Error
-            ? deleteError.message
-            : "Could not delete the account.",
-        );
-      }
+  function saveProfile(event: FormEvent) {
+    event.preventDefault();
+    if (!name.trim() || !email.trim() || !email.includes("@")) {
+      toast("Add a name and a valid email first.", "error");
+      return;
+    }
+    updateProfile({
+      name: name.trim(),
+      firstName: name.trim().split(/\s+/)[0] ?? name.trim(),
+      email: email.trim(),
+      initials: initialsFromName(name.trim()),
     });
+    toast("Profile details saved locally.", "success");
+  }
+
+  function exportAll() {
+    downloadWorkspaceJson({
+      version: 1,
+      profile,
+      resumes,
+    });
+    toast("Your local workspace was exported.", "success");
+  }
+
+  function resetWorkspace() {
+    resetDemo();
+    setResetOpen(false);
+    setName("Alex Morgan");
+    setEmail("alex.morgan@email.com");
+    toast("The demo workspace is back to its original state.", "success");
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <Link
-        href="/dashboard"
-        className="inline-flex items-center gap-1.5 text-sm text-stone-500 hover:text-stone-900"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to dashboard
-      </Link>
+    <div className="lume-page lume-settings-page">
+      <AppTopbar />
 
-      <p className="mt-5 text-sm font-medium text-[var(--accent)]">Account</p>
-      <h1 className="mt-1 text-3xl font-semibold tracking-tight text-stone-900">
-        Settings
-      </h1>
+      <main className="settings-main">
+        <header className="settings-intro">
+          <p className="app-eyebrow">
+            <span aria-hidden="true" />
+            Your space
+          </p>
+          <h1>
+            A space that stays yours<span>.</span>
+          </h1>
+          <p>
+            Small details, local data, and a plan that stays out of the way.
+            This demo keeps everything in your browser.
+          </p>
+        </header>
 
-      <Card className="mt-6 p-6">
-        <h2 className="text-lg font-semibold text-stone-900">Profile</h2>
-        <dl className="mt-4 space-y-3 text-sm">
-          <div className="flex items-center justify-between gap-4">
-            <dt className="text-stone-500">Name</dt>
-            <dd className="font-medium text-stone-900">{name || "—"}</dd>
-          </div>
-          <div className="flex items-center justify-between gap-4">
-            <dt className="text-stone-500">Email</dt>
-            <dd className="font-medium text-stone-900">{email}</dd>
-          </div>
-        </dl>
-        <div className="mt-5 flex gap-2">
-          <Button
-            variant="secondary"
-            onClick={() => startTransition(() => signOut())}
-            disabled={pending}
-          >
-            <LogOut className="h-4 w-4" />
-            Sign out
-          </Button>
-        </div>
-      </Card>
+        <div className="settings-layout">
+          <aside className="settings-aside">
+            <div className="settings-profile-card">
+              <span className="settings-avatar">{profile.initials}</span>
+              <h2>{profile.name}</h2>
+              <p>{profile.email}</p>
+              <span className="settings-plan-chip">
+                <Sparkles size={12} aria-hidden="true" />
+                {profile.plan === "pro" ? "Lume Pro" : "Lume Free"}
+              </span>
+              <div className="settings-profile-meta">
+                <span>Member since</span>
+                <strong>{formatLongDate(profile.memberSince)}</strong>
+              </div>
+              <Link href="/billing">
+                Manage plan
+                <ArrowRight size={13} aria-hidden="true" />
+              </Link>
+            </div>
 
-      <Card className="mt-4 p-6">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-stone-900">
-              <Sparkles className="h-4 w-4 text-[var(--accent)]" />
-              AI data processing
-            </h2>
-            <p className="mt-1 text-sm leading-relaxed text-stone-600">
-              AI writing and job tailoring send resume text and job descriptions
-              to DeepSeek. The free score, editor, and PDF export do not.
+            <nav className="settings-nav" aria-label="Settings sections">
+              <a href="#profile">
+                <UserRound size={14} aria-hidden="true" />
+                Profile
+              </a>
+              <a href="#data">
+                <Database size={14} aria-hidden="true" />
+                Local data
+              </a>
+              <a href="#privacy">
+                <ShieldCheck size={14} aria-hidden="true" />
+                Privacy
+              </a>
+            </nav>
+          </aside>
+
+          <div className="settings-content">
+            <section className="settings-section" id="profile">
+              <div className="settings-section-head">
+                <div>
+                  <p className="app-eyebrow">Profile</p>
+                  <h2>The name on the work.</h2>
+                </div>
+                <span className="settings-section-icon">
+                  <UserRound size={17} aria-hidden="true" />
+                </span>
+              </div>
+              <form className="settings-form" onSubmit={saveProfile}>
+                <label className="app-field">
+                  <span className="app-field-label">Full name</span>
+                  <input
+                    className="app-input"
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    autoComplete="name"
+                  />
+                </label>
+                <label className="app-field">
+                  <span className="app-field-label">Email address</span>
+                  <input
+                    className="app-input"
+                    type="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    autoComplete="email"
+                  />
+                </label>
+                <div className="settings-form-foot">
+                  <p>
+                    These details identify your local workspace. Resume contact
+                    fields stay as you wrote them.
+                  </p>
+                  <button
+                    type="submit"
+                    className="app-btn app-btn--primary"
+                    disabled={!dirty}
+                  >
+                    <Check size={14} aria-hidden="true" />
+                    Save changes
+                  </button>
+                </div>
+              </form>
+            </section>
+
+            <section className="settings-section" id="data">
+              <div className="settings-section-head">
+                <div>
+                  <p className="app-eyebrow">Local data</p>
+                  <h2>Nothing leaves this browser.</h2>
+                </div>
+                <span className="settings-section-icon is-lavender">
+                  <Database size={17} aria-hidden="true" />
+                </span>
+              </div>
+
+              <div className="settings-data-facts">
+                <div>
+                  <span>{resumes.length}</span>
+                  <p>Resumes saved locally</p>
+                </div>
+                <div>
+                  <span>{profile.aiIncluded - profile.aiUsed}</span>
+                  <p>AI actions remaining</p>
+                </div>
+                <div>
+                  <span>0</span>
+                  <p>Bytes sent to a server</p>
+                </div>
+              </div>
+
+              <div className="settings-data-actions">
+                <button
+                  type="button"
+                  className="settings-action"
+                  onClick={exportAll}
+                >
+                  <span>
+                    <FileJson size={16} aria-hidden="true" />
+                  </span>
+                  <div>
+                    <strong>Export workspace</strong>
+                    <p>Download every resume and setting as editable JSON.</p>
+                  </div>
+                  <Download size={15} aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  className="settings-action"
+                  onClick={() => setResetOpen(true)}
+                >
+                  <span className="is-rose">
+                    <RotateCcw size={16} aria-hidden="true" />
+                  </span>
+                  <div>
+                    <strong>Reset the demo</strong>
+                    <p>Restore the three sample resumes and clear local edits.</p>
+                  </div>
+                  <ArrowRight size={15} aria-hidden="true" />
+                </button>
+              </div>
+            </section>
+
+            <section className="settings-section settings-privacy" id="privacy">
+              <div className="settings-section-head">
+                <div>
+                  <p className="app-eyebrow">Privacy</p>
+                  <h2>Quiet by default.</h2>
+                </div>
+                <span className="settings-section-icon is-mint">
+                  <ShieldCheck size={17} aria-hidden="true" />
+                </span>
+              </div>
+              <div className="settings-privacy-copy">
+                <h3>AI and tailoring are simulated here.</h3>
+                <p>
+                  No resume text, job description, or personal detail is sent to
+                  an AI model or a backend. Suggestions are generated from local
+                  fixtures, so failure and privacy flows can be explored without
+                  risk.
+                </p>
+                <Link href="/privacy" className="app-text-button">
+                  Read the public privacy page
+                  <ArrowRight size={13} aria-hidden="true" />
+                </Link>
+              </div>
+            </section>
+
+            <p className="settings-footnote">
+              Lume product demo · Local-first · A4 PDF
             </p>
           </div>
-          <Badge variant={consented ? "success" : "neutral"}>
-            {consented ? "Enabled" : "Off"}
-          </Badge>
         </div>
+      </main>
 
-        {consented ? (
-          <p className="mt-4 flex items-center gap-2 text-sm text-stone-600">
-            <ShieldCheck className="h-4 w-4 text-green-600" />
-            Consent recorded {aiConsentAt ? `on ${formatShortDate(aiConsentAt)}` : "just now"}.
-            You can withdraw it by deleting your account or contacting support.
-          </p>
-        ) : (
-          <Button className="mt-4" onClick={() => setConsentOpen(true)}>
-            Review and enable AI
-          </Button>
-        )}
-      </Card>
-
-      <Card className="mt-4 border-red-200 p-6">
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-red-800">
-          <TriangleAlert className="h-4 w-4" />
-          Delete account
-        </h2>
-        <p className="mt-1 text-sm leading-relaxed text-stone-600">
-          This permanently deletes your account, resumes, tailoring history, and
-          usage records. If a subscription is active, cancel it first or it may
-          continue to bill. This cannot be undone.
-        </p>
-        <Button
-          variant="danger"
-          className="mt-4"
-          onClick={() => {
-            setConfirm("");
-            setError(null);
-            setDeleteOpen(true);
-          }}
-        >
-          <Trash2 className="h-4 w-4" />
-          Delete my account
-        </Button>
-      </Card>
-
-      <p className="mt-6 text-xs text-stone-500">
-        Read the{" "}
-        <Link href="/privacy" className="underline underline-offset-2">
-          Privacy Policy
-        </Link>{" "}
-        and{" "}
-        <Link href="/terms" className="underline underline-offset-2">
-          Terms of Service
-        </Link>
-        .
-      </p>
-
-      {consentOpen ? (
-        <AiConsentDialog
-          open
-          onClose={() => setConsentOpen(false)}
-          onAccepted={() => {
-            setConsented(true);
-            setConsentOpen(false);
-          }}
-        />
-      ) : null}
-
-      <Modal
-        open={deleteOpen}
-        onClose={() => setDeleteOpen(false)}
-        title="Delete your account?"
-        description="This removes your resumes and cannot be undone."
+      <AppModal
+        open={resetOpen}
+        onClose={() => setResetOpen(false)}
+        title="Reset this demo?"
+        description="Any local edits and imported demo data will be replaced with the original three sample resumes."
+        width="sm"
         footer={
           <>
-            <Button
-              variant="secondary"
-              onClick={() => setDeleteOpen(false)}
-              disabled={pending}
+            <button
+              type="button"
+              className="app-btn app-btn--quiet"
+              onClick={() => setResetOpen(false)}
             >
-              Keep my account
-            </Button>
-            <Button
-              variant="danger"
-              onClick={handleDelete}
-              disabled={confirm !== "DELETE" || pending}
+              Keep my work
+            </button>
+            <button
+              type="button"
+              className="app-btn app-btn--danger"
+              onClick={resetWorkspace}
             >
-              {pending ? "Deleting…" : "Delete permanently"}
-            </Button>
+              <RotateCcw size={14} aria-hidden="true" />
+              Reset workspace
+            </button>
           </>
         }
       >
-        <Label htmlFor="delete-confirm">
-          Type <span className="font-mono font-semibold">DELETE</span> to confirm
-        </Label>
-        <Input
-          id="delete-confirm"
-          value={confirm}
-          onChange={(event) => setConfirm(event.target.value)}
-          placeholder="DELETE"
-          autoComplete="off"
-        />
-        {error ? (
-          <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
-            {error}
+        <div className="reset-demo-summary">
+          <span>
+            <RotateCcw size={18} aria-hidden="true" />
+          </span>
+          <p>
+            This is local-only and immediate. Export a workspace copy first if
+            you want to keep the current pages.
           </p>
-        ) : null}
-      </Modal>
-    </main>
+        </div>
+      </AppModal>
+    </div>
   );
 }

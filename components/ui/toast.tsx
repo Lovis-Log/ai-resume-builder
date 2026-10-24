@@ -41,25 +41,21 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div className="pointer-events-none fixed bottom-4 right-4 z-[60] flex w-full max-w-sm flex-col gap-2">
+      <div className="app-toast-stack">
         {items.map((item) => (
           <div
             key={item.id}
-            className={cn(
-              "pointer-events-auto flex items-start gap-3 rounded-xl border bg-white px-4 py-3 text-sm shadow-lg",
-              item.kind === "success" && "border-green-200",
-              item.kind === "error" && "border-red-200",
-              item.kind === "info" && "border-stone-200",
-            )}
+            className={cn("app-toast", `is-${item.kind}`)}
+            role="status"
           >
             {item.kind === "success" ? (
-              <CheckCircle2 className="mt-0.5 h-4 w-4 flex-none text-green-600" />
+              <CheckCircle2 className="mt-0.5 h-4 w-4 flex-none" />
             ) : item.kind === "error" ? (
-              <XCircle className="mt-0.5 h-4 w-4 flex-none text-red-600" />
+              <XCircle className="mt-0.5 h-4 w-4 flex-none" />
             ) : (
-              <Info className="mt-0.5 h-4 w-4 flex-none text-stone-500" />
+              <Info className="mt-0.5 h-4 w-4 flex-none" />
             )}
-            <span className="text-stone-700">{item.message}</span>
+            <span>{item.message}</span>
           </div>
         ))}
       </div>

@@ -27,7 +27,7 @@ export function SiteFooter() {
 
         <nav className="footer-column" aria-label="Account">
           <h2>Account</h2>
-          <Link href="/login">Start free</Link>
+          <Link href="/dashboard">Start free</Link>
           <Link href="/dashboard">Dashboard</Link>
           <Link href="/billing">Billing</Link>
           <Link href="/settings">Settings</Link>

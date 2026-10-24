@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Geist, Geist_Mono, Quicksand } from "next/font/google";
+import { Geist, Geist_Mono, Instrument_Sans, Quicksand } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { ToastProvider } from "@/components/ui/toast";
 import "./globals.css";
@@ -19,6 +19,12 @@ const geistMono = Geist_Mono({
 const quicksand = Quicksand({
   variable: "--font-lume",
   subsets: ["latin"],
+});
+
+const workspaceSans = Instrument_Sans({
+  variable: "--font-workspace",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
@@ -62,7 +68,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${quicksand.variable} h-full`}
+      className={`${geistSans.variable} ${geistMono.variable} ${quicksand.variable} ${workspaceSans.variable} h-full`}
     >
       <body className="min-h-full antialiased">
         <ToastProvider>{children}</ToastProvider>

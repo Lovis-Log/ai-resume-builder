@@ -33,7 +33,7 @@ export function Hero() {
           </p>
 
           <div className="hero-actions">
-            <Link href="/login" className="button button-light">
+            <Link href="/dashboard" className="button button-light">
               Build my resume — free
               <ArrowUpRight aria-hidden="true" />
             </Link>

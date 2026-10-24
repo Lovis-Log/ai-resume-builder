@@ -54,7 +54,7 @@ export function TemplateSection({ content }: { content: ResumeContent }) {
             ))}
           </ul>
 
-          <Link href="/login" className="text-link">
+          <Link href="/templates" className="text-link">
             Use this template — free
             <ArrowUpRight aria-hidden="true" />
           </Link>

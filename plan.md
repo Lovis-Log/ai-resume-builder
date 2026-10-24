@@ -1,7 +1,7 @@
 # AI Resume Builder — Full Build Plan
 
 > **Last updated:** 2026-10-24
-> **Status:** Interview complete. Product spec, architecture, and implementation plan are aligned. No product code has been written.
+> **Status:** Local-first product UI is complete and explorable with seeded data. The production backend code exists, but its API routes are parked in `legacy/api-routes/` until real auth, database, AI, and billing are reconnected.
 > **Billing provider:** integration deferred by choice (see §14). Everything else is locked.
 > **How to use this file:** this is the single reference for the project. Update it when a decision changes; do not let code and this document drift.
 
@@ -1976,6 +1976,29 @@ One happy path:
 6. Install Playwright Chromium and run the E2E suite in CI or locally.
 7. Review privacy/terms with counsel and replace the placeholder support address.
 8. Deploy to Vercel Pro and verify font tracing for the PDF route in the production runtime.
+
+**2026-10-24 — Local-first workspace & studio UI**
+- Replaced the authenticated app surface with a complete local product demo:
+  workspace dashboard, three-panel resume studio, template gallery, mock billing,
+  and local account settings.
+- Added a seeded local store (`lib/demo/`) with localStorage persistence, resume
+  CRUD, templates/accents/density, live A4 preview, ten-check score, simulated AI
+  summary and bullet review, simulated job tailoring, editable JSON export, and
+  browser-print PDF export.
+- Added a print-specific A4 document path, accessible dialog focus management,
+  mobile Edit/Preview switching, reduced-motion support, and responsive layouts
+  for every app page.
+- `/login` now redirects to `/dashboard`; no session, database, AI, or billing
+  provider is required to explore the UI.
+- Parked the environment-dependent API route handlers under
+  `legacy/api-routes/` so the demo builds and runs with no secrets. Backend
+  libraries and the original architecture plan remain intact for reconnection.
+- Landing CTAs now enter the workspace directly.
+- Verified: `npm run typecheck`, `npm run lint`, `npm test` (21 tests), and
+  `npm run build` all pass without environment variables. Manually exercised
+  create/edit/rename/duplicate/delete, autosave and reload persistence, AI apply,
+  tailoring apply, JSON download, print media, plan switching, demo reset, and
+  desktop/mobile layouts.
 
 ---
 

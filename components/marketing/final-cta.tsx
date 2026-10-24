@@ -21,7 +21,7 @@ export function FinalCta() {
           A little more confidence. A lot less formatting. Three free PDFs and a
           score that tells you the truth.
         </p>
-        <Link href="/login" className="button button-light final-cta-button">
+        <Link href="/dashboard" className="button button-light final-cta-button">
           Build my resume — free
           <ArrowUpRight aria-hidden="true" />
         </Link>

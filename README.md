@@ -1,107 +1,83 @@
-# Resume Builder
+# Lume
 
-An AI-assisted resume builder for early-career candidates and new grads. Build a fixed six-section resume, see a free 10-check score, tailor it to a job description, and export an A4, ATS-safe PDF.
+A local-first resume workspace and studio for early-career candidates. Build a
+fixed six-section resume, see a ten-check score, rehearse a tailoring flow, and
+export an A4 page.
 
-## Stack
+The current build is a **front-end product demo**. It intentionally runs without
+accounts, a database, an AI provider, or a billing provider. The interactive
+workspace is seeded with realistic sample content and saves everything in your
+browser.
 
-- Next.js 16.4 App Router, React 19, Tailwind CSS 4
-- Neon Postgres + Neon Auth (Google only)
-- Drizzle ORM + `pg`
-- DeepSeek `deepseek-flash`
-- `@react-pdf/renderer`
-- Vercel
-
-The full product, architecture, and implementation plan is in [plan.md](./plan.md).
-
-## Quick start
+## Run it
 
 ```bash
 npm install
-cp .env.example .env.local
-# fill in DATABASE_URL, DATABASE_URL_UNPOOLED,
-# NEON_AUTH_BASE_URL, NEON_AUTH_COOKIE_SECRET, DEEPSEEK_API_KEY
-npm run db:migrate
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open [http://localhost:3000](http://localhost:3000) and go straight to the
+workspace. No environment variables are required.
 
-### Neon Auth
+If you open an older `/login` link, it redirects to `/dashboard` for this demo.
 
-1. Create a Neon project and enable Auth on the branch.
-2. Set `NEON_AUTH_BASE_URL` to the full branch auth URL (including `/neondb/auth`).
-3. Generate a cookie secret with `openssl rand -base64 32` and set `NEON_AUTH_COOKIE_SECRET`.
-4. In Neon Console → Auth → OAuth providers → Google, add a Google OAuth client.
-   - Authorized redirect URI: `{NEON_AUTH_BASE_URL}/callback/google`.
-5. Add `http://localhost:3000` and your production domain as trusted domains.
-6. Disable email/password sign-up; the app is Google-only.
+## What is interactive
 
-### Database
+- Dashboard with seeded resumes, search, create, rename, duplicate, delete, and
+  local persistence.
+- Studio with a structured editor, live A4 preview, three templates, six accent
+  colors, three density settings, zoom, and click-to-edit sections.
+- Ten-check resume score with fix links.
+- Simulated Lume AI summary drafting and bullet improvement with review/apply.
+- Simulated job tailoring: keyword overlap, gaps, reviewed suggestions, and apply.
+- Export through the browser print dialog (A4, selectable text) or as editable
+  JSON.
+- Mock billing and account settings, including a reset-to-seed action.
+- Responsive layouts, with an explicit Edit/Preview switch on small screens.
 
-```bash
-npm run db:generate   # generate SQL from lib/db/schema.ts
-npm run db:migrate    # apply against DATABASE_URL_UNPOOLED
-npm run db:studio
-```
+All AI and billing flows are labelled as simulations. No resume text or job
+description leaves the browser.
 
-Enable Neon Auth before applying the optional `neon_auth.user` foreign-key
-migration. App data still cascades from `profiles` even without the cross-schema
-FK.
+## Routes
 
-### Local helpers
+| Route | Purpose |
+| --- | --- |
+| `/` | Public marketing page |
+| `/dashboard` | Workspace and resume library |
+| `/resume/[id]` | Resume editor, preview, AI, tailoring, and score |
+| `/templates` | Template gallery and new-resume entry |
+| `/billing` | Demo plan, usage, and invoices |
+| `/settings` | Local profile and workspace data |
+| `/privacy`, `/terms` | Public legal pages |
 
-```bash
-# Sign in once, then copy the auth user id from neon_auth.user
-npm run seed -- <user-id>
-npm run seed:grant-pro -- <user-id>
-```
+## Local data
 
-## AI
+Demo state is stored under `lume-demo-workspace-v1` in `localStorage`. Use
+**Settings → Reset the demo** to restore the three sample resumes and default
+profile. **Export workspace** downloads the complete state as JSON.
 
-AI features are opt-in. The consent dialog explains that resume text and job
-descriptions are sent to DeepSeek, which processes data in the PRC and may use
-inputs for model improvement. The score, editor, autosave, and PDF export do not
-call an AI provider.
-
-The app uses `deepseek-flash` with thinking disabled for latency. Prompts are in
-`lib/ai/prompts.ts`; JSON output is validated with Zod. Failed or invalid calls
-do not consume an AI action.
-
-## Billing
-
-Billing provider integration is intentionally deferred. The app has a
-provider-agnostic adapter (`lib/billing/`) and a `manual` adapter for local Pro
-testing. Set `BILLING_PROVIDER=manual` (default). Paid launch is blocked until a
-real merchant-of-record provider is connected. The recommended target is Creem;
-Dodo Payments is the backup. See `plan.md` for the research and trade-offs.
-
-## Tests
+## Verification
 
 ```bash
 npm run typecheck
+npm run lint
 npm test
-npm run test:e2e
+npm run build
 ```
 
-The PDF extraction test uses `pdftotext` when available. Install Poppler to run
-it locally (`brew install poppler`, `apt-get install poppler-utils`, or the
-Windows Poppler build). Without it, the PDF test still checks page size and
-count.
+The existing unit/PDF suite passes. The production build runs with no secrets.
 
-## Deployment
+## Parked production prototype
 
-- Deploy to Vercel (Pro plan for commercial use).
-- Set all environment variables for Production, Preview, and Development.
-- Use the Neon/Vercel integration for branch-aware `DATABASE_URL` and
-  `NEON_AUTH_BASE_URL`.
-- Run migrations against the target Neon branch before deploying.
-- Google OAuth redirect URIs are per Neon Auth branch; use Neon's shared
-  credentials for previews or register each branch.
-- `NEXT_PUBLIC_APP_URL` must be the production origin.
+The earlier backend implementation is still in the repository for a later
+phase. Its API route handlers were moved to
+[`legacy/api-routes`](./legacy/api-routes/README.md) because they require Neon,
+Google OAuth, DeepSeek, and billing environment variables at build time. Related
+libraries remain under `lib/`, and the full production architecture is described
+in [plan.md](./plan.md).
 
-## Scope guardrails
+When reconnecting the backend:
 
-Fixed sections only: Contact, Summary, Experience, Education, Projects, Skills.
-One A4 template. No drag-and-drop, custom sections, rich formatting, teams,
-sharing, folders, or mobile editing. The editor is desktop-only; the marketing
-page is responsive.
+1. Move the required folders from `legacy/api-routes/api` back into `app/api`.
+2. Restore authentication routing and environment variables from `.env.example`.
+3. Replace the local demo store with server data and real AI/PDF handlers.

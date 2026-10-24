@@ -84,10 +84,10 @@ export function SiteNav() {
         </nav>
 
         <div className="nav-right">
-          <Link href="/login" className="nav-signin">
-            Sign in
+          <Link href="/dashboard" className="nav-signin">
+            Workspace
           </Link>
-          <Link href="/login" className="nav-cta">
+          <Link href="/dashboard" className="nav-cta">
             Start building
             <ArrowUpRight className="nav-cta-icon" aria-hidden="true" />
           </Link>

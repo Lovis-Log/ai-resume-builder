@@ -60,7 +60,7 @@ export function ScoreSection({ result }: { result: ScoreResult }) {
             </li>
           </ul>
 
-          <Link href="/login" className="text-link">
+          <Link href="/dashboard" className="text-link">
             Get my free score
             <ArrowUpRight aria-hidden="true" />
           </Link>
