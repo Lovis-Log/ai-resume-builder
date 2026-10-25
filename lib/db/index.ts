@@ -1,2 +1,2 @@
 import "server-only";
-export { db, pool } from "./client";
+export { closePool, db, getDb, getPool } from "./client";

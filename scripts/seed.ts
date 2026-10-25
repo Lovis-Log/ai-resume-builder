@@ -13,7 +13,7 @@ if (!userId) {
   process.exit(1);
 }
 
-const { db, pool } = await import("../lib/db/client");
+const { closePool, db } = await import("../lib/db/client");
 const { resumes } = await import("../lib/db/schema");
 const { SAMPLE_RESUME_CONTENT } = await import("../lib/resume/defaults");
 
@@ -27,4 +27,4 @@ const [resume] = await db
   .returning({ id: resumes.id });
 
 console.log(`Created sample resume ${resume.id} for ${userId}.`);
-await pool.end();
+await closePool();

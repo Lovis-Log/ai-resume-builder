@@ -10,7 +10,7 @@ if (!userId) {
   process.exit(1);
 }
 
-const { db, pool } = await import("../lib/db/client");
+const { closePool, db } = await import("../lib/db/client");
 const { subscriptions } = await import("../lib/db/schema");
 
 const now = new Date();
@@ -40,4 +40,4 @@ await db
   });
 
 console.log(`Granted manual Pro to ${userId} until ${periodEnd.toISOString()}.`);
-await pool.end();
+await closePool();
