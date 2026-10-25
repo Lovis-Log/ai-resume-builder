@@ -30,7 +30,7 @@ describe("resumeContentSchema", () => {
       company: "",
       location: "",
       startDate: "2024-13",
-      endDate: null,
+      endDate: "",
       current: false,
       bullets: [],
     });

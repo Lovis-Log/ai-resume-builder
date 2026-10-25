@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
-  ArrowUpRight,
   Check,
   CreditCard,
   Download,
@@ -16,17 +15,11 @@ import {
 } from "lucide-react";
 import { AppModal } from "@/components/app/app-modal";
 import { AppTopbar } from "@/components/app/app-topbar";
-import { useDemoStore } from "@/components/app/demo-store";
+import { useWorkspace } from "@/components/app/workspace-store";
 import { useToast } from "@/components/ui/toast";
-import { formatLongDate } from "@/lib/demo/format";
-import type { DemoPlan } from "@/lib/demo/types";
+import { formatLongDate } from "@/lib/resume/format";
+import type { WorkspacePlan } from "@/lib/resume/types";
 import { cn } from "@/lib/utils";
-
-const invoices = [
-  { id: "INV-2026-0412", date: "2026-10-24T09:00:00.000Z", amount: "$12.00" },
-  { id: "INV-2026-0321", date: "2026-09-24T09:00:00.000Z", amount: "$12.00" },
-  { id: "INV-2026-0247", date: "2026-08-24T09:00:00.000Z", amount: "$12.00" },
-];
 
 const freeFeatures = [
   "1 resume at a time",
@@ -45,26 +38,24 @@ const proFeatures = [
 ];
 
 export function BillingClient() {
-  const { profile, updateProfile } = useDemoStore();
+  const { profile, changePlan: applyPlan } = useWorkspace();
   const { toast } = useToast();
   const [manageOpen, setManageOpen] = useState(false);
-  const [confirmPlan, setConfirmPlan] = useState<DemoPlan | null>(null);
-  const [invoiceId, setInvoiceId] = useState<string | null>(null);
+  const [confirmPlan, setConfirmPlan] = useState<WorkspacePlan | null>(null);
 
   const isPro = profile.plan === "pro";
   const used = profile.aiUsed;
   const included = profile.aiIncluded;
   const percent = Math.min(100, Math.round((used / included) * 100));
-  const invoice = invoices.find((item) => item.id === invoiceId) ?? null;
 
-  function changePlan(plan: DemoPlan) {
-    updateProfile({ plan });
+  async function changePlan(plan: WorkspacePlan) {
+    await applyPlan(plan);
     setConfirmPlan(null);
     setManageOpen(false);
     toast(
       plan === "pro"
-        ? "Pro plan restored in this local demo."
-        : "Switched to the Free plan for this demo.",
+        ? "Pro plan saved to your workspace."
+        : "Switched to the Free plan.",
       "success",
     );
   }
@@ -85,12 +76,13 @@ export function BillingClient() {
             </h1>
             <p>
               A clear view of what you have, what you&apos;ve used, and what
-              renews next. Billing is simulated in this demo.
+              renews next. Plans are stored in Neon Postgres; a payment
+              provider is not connected yet.
             </p>
           </div>
           <span className="billing-demo-badge">
             <Sparkles size={13} aria-hidden="true" />
-            Demo billing
+            {profile.billingEnabled ? "Live billing" : "Manual billing"}
           </span>
         </header>
 
@@ -103,9 +95,11 @@ export function BillingClient() {
               </span>
               <h2>{isPro ? "Room for every role." : "A place to begin."}</h2>
               <p>
-                {isPro
+                {isPro && profile.renewsOn
                   ? `Your plan renews ${formatLongDate(profile.renewsOn)}.`
-                  : "Create a resume, run the score, and keep everything local."}
+                  : isPro
+                    ? "Your Pro plan is active."
+                    : "Create a resume, run the score, and upgrade when you need more."}
               </p>
             </div>
             <span className="billing-plan-mark">
@@ -164,8 +158,8 @@ export function BillingClient() {
             </button>
             <span>
               {isPro
-                ? "No card on file — this is a local demo."
-                : "Upgrade or downgrade instantly in the demo."}
+                ? "No payment provider is connected yet."
+                : "Plan changes are saved to your account."}
             </span>
           </div>
         </section>
@@ -269,7 +263,7 @@ export function BillingClient() {
                     className="app-btn app-btn--primary billing-plan-action"
                     onClick={() => setConfirmPlan("pro")}
                   >
-                    Simulate an upgrade
+                    Switch to Pro
                     <ArrowRight size={14} aria-hidden="true" />
                   </button>
                 )}
@@ -286,31 +280,10 @@ export function BillingClient() {
                 </span>
                 <span>3 recent</span>
               </div>
-              {isPro ? (
-                <div className="billing-invoices">
-                  {invoices.map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => setInvoiceId(item.id)}
-                    >
-                      <span>
-                        <strong>{formatLongDate(item.date)}</strong>
-                        <small>{item.id}</small>
-                      </span>
-                      <span>
-                        {item.amount}
-                        <ArrowUpRight size={12} aria-hidden="true" />
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <p className="billing-empty-copy">
-                  Invoices will appear here after you upgrade. This is a local
-                  demo, so no charge is ever made.
-                </p>
-              )}
+              <p className="billing-empty-copy">
+                No invoices yet. Connect a billing provider before charging for
+                Pro; plan changes here only update your workspace entitlement.
+              </p>
             </article>
 
             <article className="billing-side-card billing-billing-note">
@@ -318,10 +291,10 @@ export function BillingClient() {
                 <ShieldCheck size={16} aria-hidden="true" />
               </span>
               <div>
-                <h3>No surprises, no real payment.</h3>
+                <h3>No surprises, no charge.</h3>
                 <p>
-                  Plan changes are simulated and stored only in this browser.
-                  There is no checkout, card field, or provider connected.
+                  Plan changes update your subscription row in Neon. Checkout is
+                  disabled until a merchant-of-record provider is connected.
                 </p>
               </div>
             </article>
@@ -338,7 +311,7 @@ export function BillingClient() {
         open={manageOpen}
         onClose={() => setManageOpen(false)}
         title={isPro ? "Your Pro plan." : "Your Free plan."}
-        description="Everything on this page is a local simulation. You can change plans freely."
+        description="This updates the subscription stored in your Neon workspace."
         width="sm"
         footer={
           <>
@@ -363,7 +336,7 @@ export function BillingClient() {
                 className="app-btn app-btn--primary"
                 onClick={() => setConfirmPlan("pro")}
               >
-                Upgrade in demo
+                Switch to Pro
               </button>
             )}
           </>
@@ -377,12 +350,14 @@ export function BillingClient() {
           <div>
             <span>Renews</span>
             <strong>
-              {isPro ? formatLongDate(profile.renewsOn) : "No renewal"}
+              {isPro && profile.renewsOn
+                ? formatLongDate(profile.renewsOn)
+                : "No renewal"}
             </strong>
           </div>
           <div>
             <span>Payment method</span>
-            <strong>None · demo mode</strong>
+            <strong>None · provider not connected</strong>
           </div>
           <div>
             <span>AI actions</span>
@@ -398,13 +373,13 @@ export function BillingClient() {
         onClose={() => setConfirmPlan(null)}
         title={
           confirmPlan === "pro"
-            ? "Move to Pro in this demo?"
+            ? "Switch to Pro?"
             : "Move to the Free plan?"
         }
         description={
           confirmPlan === "pro"
-            ? "This simulates an upgrade instantly. No card, checkout, or charge is involved."
-            : "Your local resumes remain, but the demo will show Free-plan limits. You can switch back any time."
+            ? "This updates your subscription in Neon. No card, checkout, or charge is involved."
+            : "Your resumes remain, but the Free-plan limits apply. You can switch back any time."
         }
         width="sm"
         footer={
@@ -421,7 +396,7 @@ export function BillingClient() {
               className="app-btn app-btn--primary"
               onClick={() => confirmPlan && changePlan(confirmPlan)}
             >
-              {confirmPlan === "pro" ? "Simulate upgrade" : "Use Free plan"}
+              {confirmPlan === "pro" ? "Switch to Pro" : "Use Free plan"}
             </button>
           </>
         }
@@ -441,63 +416,6 @@ export function BillingClient() {
             </span>
           </div>
         </div>
-      </AppModal>
-
-      <AppModal
-        open={invoice !== null}
-        onClose={() => setInvoiceId(null)}
-        title="Invoice preview"
-        description="A sample receipt from the local demo. No payment was processed."
-        width="sm"
-        footer={
-          <>
-            <button
-              type="button"
-              className="app-btn app-btn--quiet"
-              onClick={() => setInvoiceId(null)}
-            >
-              Close
-            </button>
-            <button
-              type="button"
-              className="app-btn app-btn--primary"
-              onClick={() => {
-                toast("This is a demo invoice. No download was charged.", "info");
-                setInvoiceId(null);
-              }}
-            >
-              <Download size={14} aria-hidden="true" />
-              Download demo receipt
-            </button>
-          </>
-        }
-      >
-        {invoice ? (
-          <div className="invoice-preview">
-            <div className="invoice-preview-head">
-              <div>
-                <strong>Lume</strong>
-                <span>Thoughtfully yours</span>
-              </div>
-              <span>Paid</span>
-            </div>
-            <div className="invoice-preview-row">
-              <span>Invoice</span>
-              <strong>{invoice.id}</strong>
-            </div>
-            <div className="invoice-preview-row">
-              <span>Date</span>
-              <strong>{formatLongDate(invoice.date)}</strong>
-            </div>
-            <div className="invoice-preview-row">
-              <span>Lume Pro · monthly</span>
-              <strong>{invoice.amount}</strong>
-            </div>
-            <p>
-              Demo receipt only. Billing provider integration is not connected.
-            </p>
-          </div>
-        ) : null}
       </AppModal>
     </div>
   );

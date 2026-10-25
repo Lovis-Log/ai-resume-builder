@@ -8,57 +8,52 @@ import {
   Database,
   Download,
   FileJson,
-  RotateCcw,
+  LogOut,
   ShieldCheck,
   Sparkles,
+  Trash2,
   UserRound,
 } from "lucide-react";
 import { AppModal } from "@/components/app/app-modal";
 import { AppTopbar } from "@/components/app/app-topbar";
-import { useDemoStore } from "@/components/app/demo-store";
+import { useWorkspace } from "@/components/app/workspace-store";
 import { useToast } from "@/components/ui/toast";
-import { downloadWorkspaceJson } from "@/lib/demo/download";
-import { formatLongDate, initialsFromName } from "@/lib/demo/format";
+import { deleteAccount, signOut } from "@/app/actions/account";
+import { downloadWorkspaceJson } from "@/lib/resume/export";
+import { formatLongDate } from "@/lib/resume/format";
 
 export function SettingsClient() {
-  const { profile, resumes, updateProfile, resetDemo } = useDemoStore();
+  const { profile, resumes, updateProfile, liveStatus } = useWorkspace();
   const { toast } = useToast();
   const [name, setName] = useState(profile.name);
-  const [email, setEmail] = useState(profile.email);
-  const [resetOpen, setResetOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
-  const dirty = name !== profile.name || email !== profile.email;
+  const dirty = name.trim() !== profile.name;
 
-  function saveProfile(event: FormEvent) {
+  async function saveProfile(event: FormEvent) {
     event.preventDefault();
-    if (!name.trim() || !email.trim() || !email.includes("@")) {
-      toast("Add a name and a valid email first.", "error");
+    if (!name.trim()) {
+      toast("Add your name first.", "error");
       return;
     }
-    updateProfile({
-      name: name.trim(),
-      firstName: name.trim().split(/\s+/)[0] ?? name.trim(),
-      email: email.trim(),
-      initials: initialsFromName(name.trim()),
-    });
-    toast("Profile details saved locally.", "success");
+    await updateProfile({ name: name.trim() });
+    toast("Profile saved to Neon.", "success");
   }
 
   function exportAll() {
-    downloadWorkspaceJson({
-      version: 1,
-      profile,
-      resumes,
-    });
-    toast("Your local workspace was exported.", "success");
+    downloadWorkspaceJson({ profile, resumes });
+    toast("Your workspace was exported.", "success");
   }
 
-  function resetWorkspace() {
-    resetDemo();
-    setResetOpen(false);
-    setName("Alex Morgan");
-    setEmail("alex.morgan@email.com");
-    toast("The demo workspace is back to its original state.", "success");
+  async function confirmDelete() {
+    setDeleting(true);
+    try {
+      await deleteAccount();
+    } catch {
+      setDeleting(false);
+      toast("We could not delete the account. Contact support.", "error");
+    }
   }
 
   return (
@@ -75,8 +70,8 @@ export function SettingsClient() {
             A space that stays yours<span>.</span>
           </h1>
           <p>
-            Small details, local data, and a plan that stays out of the way.
-            This demo keeps everything in your browser.
+            Your account, your data, and a plan that stays out of the way.
+            Everything here lives in your Neon workspace.
           </p>
         </header>
 
@@ -107,7 +102,7 @@ export function SettingsClient() {
               </a>
               <a href="#data">
                 <Database size={14} aria-hidden="true" />
-                Local data
+                Workspace data
               </a>
               <a href="#privacy">
                 <ShieldCheck size={14} aria-hidden="true" />
@@ -142,15 +137,18 @@ export function SettingsClient() {
                   <input
                     className="app-input"
                     type="email"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    autoComplete="email"
+                    value={profile.email}
+                    readOnly
+                    aria-readonly="true"
                   />
+                  <small className="app-field-hint">
+                    Managed by your Google sign-in, so it cannot be edited here.
+                  </small>
                 </label>
                 <div className="settings-form-foot">
                   <p>
-                    These details identify your local workspace. Resume contact
-                    fields stay as you wrote them.
+                    This name appears in your workspace. Resume contact fields
+                    stay as you wrote them.
                   </p>
                   <button
                     type="submit"
@@ -167,8 +165,8 @@ export function SettingsClient() {
             <section className="settings-section" id="data">
               <div className="settings-section-head">
                 <div>
-                  <p className="app-eyebrow">Local data</p>
-                  <h2>Nothing leaves this browser.</h2>
+                  <p className="app-eyebrow">Workspace data</p>
+                  <h2>Saved in Postgres, live in every tab.</h2>
                 </div>
                 <span className="settings-section-icon is-lavender">
                   <Database size={17} aria-hidden="true" />
@@ -178,15 +176,15 @@ export function SettingsClient() {
               <div className="settings-data-facts">
                 <div>
                   <span>{resumes.length}</span>
-                  <p>Resumes saved locally</p>
+                  <p>Resumes in Neon</p>
                 </div>
                 <div>
                   <span>{profile.aiIncluded - profile.aiUsed}</span>
                   <p>AI actions remaining</p>
                 </div>
                 <div>
-                  <span>0</span>
-                  <p>Bytes sent to a server</p>
+                  <span>{liveStatus === "live" ? "Live" : liveStatus === "polling" ? "Polling" : "Syncing"}</span>
+                  <p>Realtime connection</p>
                 </div>
               </div>
 
@@ -208,18 +206,27 @@ export function SettingsClient() {
                 <button
                   type="button"
                   className="settings-action"
-                  onClick={() => setResetOpen(true)}
+                  onClick={() => setDeleteOpen(true)}
                 >
                   <span className="is-rose">
-                    <RotateCcw size={16} aria-hidden="true" />
+                    <Trash2 size={16} aria-hidden="true" />
                   </span>
                   <div>
-                    <strong>Reset the demo</strong>
-                    <p>Restore the three sample resumes and clear local edits.</p>
+                    <strong>Delete account</strong>
+                    <p>
+                      Remove your auth user, resumes, usage, and subscription.
+                    </p>
                   </div>
                   <ArrowRight size={15} aria-hidden="true" />
                 </button>
               </div>
+
+              <form action={signOut} className="settings-signout-form">
+                <button type="submit" className="app-btn app-btn--quiet">
+                  <LogOut size={14} aria-hidden="true" />
+                  Sign out
+                </button>
+              </form>
             </section>
 
             <section className="settings-section settings-privacy" id="privacy">
@@ -233,12 +240,12 @@ export function SettingsClient() {
                 </span>
               </div>
               <div className="settings-privacy-copy">
-                <h3>AI and tailoring are simulated here.</h3>
+                <h3>AI is opt-in, and the database is yours.</h3>
                 <p>
-                  No resume text, job description, or personal detail is sent to
-                  an AI model or a backend. Suggestions are generated from local
-                  fixtures, so failure and privacy flows can be explored without
-                  risk.
+                  Resume content is stored in your Neon Postgres branch and
+                  served through Neon Auth. When you use an AI action, the
+                  relevant text is sent to DeepSeek through a Neon Function.
+                  Nothing is sent until you accept the AI notice.
                 </p>
                 <Link href="/privacy" className="app-text-button">
                   Read the public privacy page
@@ -248,45 +255,46 @@ export function SettingsClient() {
             </section>
 
             <p className="settings-footnote">
-              Lume product demo · Local-first · A4 PDF
+              Lume · Neon Postgres, Auth, Functions, Realtime · A4 PDF
             </p>
           </div>
         </div>
       </main>
 
       <AppModal
-        open={resetOpen}
-        onClose={() => setResetOpen(false)}
-        title="Reset this demo?"
-        description="Any local edits and imported demo data will be replaced with the original three sample resumes."
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        title="Delete your account?"
+        description="This removes your sign-in, resumes, usage history, and subscription. It cannot be undone."
         width="sm"
         footer={
           <>
             <button
               type="button"
               className="app-btn app-btn--quiet"
-              onClick={() => setResetOpen(false)}
+              onClick={() => setDeleteOpen(false)}
+              disabled={deleting}
             >
-              Keep my work
+              Keep my account
             </button>
             <button
               type="button"
               className="app-btn app-btn--danger"
-              onClick={resetWorkspace}
+              onClick={confirmDelete}
+              disabled={deleting}
             >
-              <RotateCcw size={14} aria-hidden="true" />
-              Reset workspace
+              <Trash2 size={14} aria-hidden="true" />
+              {deleting ? "Deleting…" : "Delete account"}
             </button>
           </>
         }
       >
         <div className="reset-demo-summary">
           <span>
-            <RotateCcw size={18} aria-hidden="true" />
+            <Trash2 size={18} aria-hidden="true" />
           </span>
           <p>
-            This is local-only and immediate. Export a workspace copy first if
-            you want to keep the current pages.
+            Export a workspace copy first if you want to keep the current pages.
           </p>
         </div>
       </AppModal>

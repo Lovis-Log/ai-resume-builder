@@ -1,6 +1,6 @@
 import { forwardRef, type CSSProperties, type KeyboardEvent } from "react";
-import { formatRange, splitSkills } from "@/lib/demo/format";
-import type { DemoResume } from "@/lib/demo/types";
+import { formatRange, splitSkills } from "@/lib/resume/format";
+import type { ResumeRecord } from "@/lib/resume/types";
 
 type ResumeSection =
   | "personal"
@@ -53,7 +53,7 @@ function Section({
 export const ResumeDocument = forwardRef<
   HTMLElement,
   {
-    resume: DemoResume;
+    resume: ResumeRecord;
     className?: string;
     onSectionClick?: (section: ResumeSection) => void;
     ariaHidden?: boolean;

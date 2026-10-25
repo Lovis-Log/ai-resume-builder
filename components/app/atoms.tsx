@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import { ShieldCheck } from "lucide-react";
-import type { TemplateId } from "@/lib/demo/types";
+import type { TemplateId } from "@/lib/resume/types";
 
 export function ScoreRing({
   score,

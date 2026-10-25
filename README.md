@@ -1,60 +1,123 @@
 # Lume
 
-A local-first resume workspace and studio for early-career candidates. Build a
-fixed six-section resume, see a ten-check score, rehearse a tailoring flow, and
-export an A4 page.
+An AI-assisted resume studio for early-career candidates. Build a fixed
+six-section resume, see a ten-check score, tailor it to a job description, and
+export an A4, ATS-safe page.
 
-The current build is a **front-end product demo**. It intentionally runs without
-accounts, a database, an AI provider, or a billing provider. The interactive
-workspace is seeded with realistic sample content and saves everything in your
-browser.
+The app is backed by Neon end to end:
 
-## Run it
+- **Postgres** stores profiles, resumes, tailoring runs, usage, and subscriptions.
+- **Neon Auth** (Managed Better Auth) provides Google sign-in and sessions.
+- **Neon Functions** runs the AI endpoint that talks to DeepSeek.
+- **Neon Realtime** streams resume changes to every open tab.
+
+## Stack
+
+- Next.js 16.4 App Router, React 19, Tailwind CSS 4
+- Neon Postgres + Neon Auth + Neon Functions + Neon Realtime
+- Drizzle ORM + `pg`
+- DeepSeek `deepseek-flash` (optional; deterministic fallback without a key)
+- `@react-pdf/renderer` for the legacy server PDF path
+- Vercel
+
+## Quick start
 
 ```bash
 npm install
+cp .env.example .env.local
+neon login
+neon link --project-id <project-id>
+neon deploy --env .env.local
+npm run db:migrate
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) and go straight to the
-workspace. No environment variables are required.
+`neon deploy` provisions the services declared in [neon.ts](./neon.ts), deploys
+the AI function, and writes the branch environment variables into `.env.local`.
+Generate the cookie secret once:
 
-If you open an older `/login` link, it redirects to `/dashboard` for this demo.
+```bash
+node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
+# add NEON_AUTH_COOKIE_SECRET=... to .env.local
+```
 
-## What is interactive
+Open `http://localhost:3000`.
 
-- Dashboard with seeded resumes, search, create, rename, duplicate, delete, and
-  local persistence.
-- Studio with a structured editor, live A4 preview, three templates, six accent
-  colors, three density settings, zoom, and click-to-edit sections.
-- Ten-check resume score with fix links.
-- Simulated Lume AI summary drafting and bullet improvement with review/apply.
-- Simulated job tailoring: keyword overlap, gaps, reviewed suggestions, and apply.
-- Export through the browser print dialog (A4, selectable text) or as editable
-  JSON.
-- Mock billing and account settings, including a reset-to-seed action.
-- Responsive layouts, with an explicit Edit/Preview switch on small screens.
+### Neon Auth
 
-All AI and billing flows are labelled as simulations. No resume text or job
-description leaves the browser.
+1. Enable Auth on the branch (`auth: true` in `neon.ts`, applied by `neon deploy`).
+2. Set `NEON_AUTH_COOKIE_SECRET` to a random string of 32+ characters.
+3. In Neon Console → Auth → OAuth providers → Google, add a Google OAuth client
+   for production. Development uses Neon's shared Google credentials.
+4. Authorized redirect URI: `{NEON_AUTH_BASE_URL}/callback/google`.
+5. Add `http://localhost:3000` and the production origin as trusted domains.
+   Localhost ports are pre-approved by default.
+
+`app/api/auth/[...path]/route.ts` proxies the SDK, and [proxy.ts](./proxy.ts)
+protects `/dashboard`, `/resume`, `/templates`, `/billing`, and `/settings`.
+Every server action re-checks the session; the proxy is not the authorization
+boundary.
+
+### Database
+
+```bash
+npm run db:generate   # generate SQL from lib/db/schema.ts
+npm run db:migrate    # apply against DATABASE_URL_UNPOOLED
+npm run db:studio
+```
+
+Migrations are in [`drizzle/`](./drizzle/). The application uses the pooled
+`DATABASE_URL` through a `pg` pool; migrations use the direct URL.
+
+### AI Function
+
+The AI endpoint lives in [`functions/api.ts`](./functions/api.ts) and is declared
+in `neon.ts` as the `ai` function. It verifies Neon Auth JWTs against the
+injected JWKS, then calls DeepSeek for summaries, bullet rewrites, keyword
+extraction, and tailoring. If `DEEPSEEK_API_KEY` is unset, it returns a
+deterministic heuristic response so the full review flow still works.
+
+```bash
+neon dev          # local function runtime at http://localhost:8787
+neon deploy --env .env.local
+```
+
+To run the app against the local function during development:
+
+```bash
+NEON_FUNCTION_AI_BASE_URL=http://127.0.0.1:8787 npm run dev
+```
+
+### Realtime
+
+The signed-in `(app)` layout loads the initial resume snapshot and a sealed
+Realtime query. `components/app/workspace-store.tsx` subscribes through
+`@neon/realtime-react`; `app/api/realtime/resumes/route.ts` renews the sealed
+query for the current user. Writes return `pg_current_xact_id()` so the client
+can wait for the matching transaction.
+
+If a network blocks the WebSocket handshake, the provider falls back to a
+short authenticated poll of `app/api/workspace/resumes/route.ts`, so open tabs
+still converge.
+
+### Billing
+
+Billing remains provider-manual. Plan changes update the `subscriptions` row in
+Postgres; checkout is disabled until a merchant-of-record provider (Creem is the
+recommended target) is connected. See `lib/billing/`.
 
 ## Routes
 
 | Route | Purpose |
 | --- | --- |
 | `/` | Public marketing page |
+| `/login` | Google sign-in |
 | `/dashboard` | Workspace and resume library |
-| `/resume/[id]` | Resume editor, preview, AI, tailoring, and score |
+| `/resume/[id]` | Editor, live preview, AI, tailoring, and score |
 | `/templates` | Template gallery and new-resume entry |
-| `/billing` | Demo plan, usage, and invoices |
-| `/settings` | Local profile and workspace data |
+| `/billing` | Plan, usage, and invoices |
+| `/settings` | Profile, export, sign-out, and account deletion |
 | `/privacy`, `/terms` | Public legal pages |
-
-## Local data
-
-Demo state is stored under `lume-demo-workspace-v1` in `localStorage`. Use
-**Settings → Reset the demo** to restore the three sample resumes and default
-profile. **Export workspace** downloads the complete state as JSON.
 
 ## Verification
 
@@ -65,19 +128,12 @@ npm test
 npm run build
 ```
 
-The existing unit/PDF suite passes. The production build runs with no secrets.
+The production build is verified with the live Neon branch. See
+[plan.md](./plan.md) for the product architecture.
 
-## Parked production prototype
+## Notes
 
-The earlier backend implementation is still in the repository for a later
-phase. Its API route handlers were moved to
-[`legacy/api-routes`](./legacy/api-routes/README.md) because they require Neon,
-Google OAuth, DeepSeek, and billing environment variables at build time. Related
-libraries remain under `lib/`, and the full production architecture is described
-in [plan.md](./plan.md).
-
-When reconnecting the backend:
-
-1. Move the required folders from `legacy/api-routes/api` back into `app/api`.
-2. Restore authentication routing and environment variables from `.env.example`.
-3. Replace the local demo store with server data and real AI/PDF handlers.
+- `legacy/api-routes/` contains the earlier server route handlers, which are not
+  part of the current app and are kept for reference.
+- The browser print dialog is the PDF export path in the studio. The
+  `@react-pdf/renderer` document remains available for a future server export.

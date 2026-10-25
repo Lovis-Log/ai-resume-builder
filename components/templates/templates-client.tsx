@@ -10,11 +10,28 @@ import {
   Type,
 } from "lucide-react";
 import { AppTopbar } from "@/components/app/app-topbar";
-import { useDemoStore } from "@/components/app/demo-store";
+import { useWorkspace } from "@/components/app/workspace-store";
 import { CreateResumeDialog } from "@/components/dashboard/create-resume-dialog";
 import { ResumeDocument } from "@/components/studio/resume-document";
-import { DEMO_RESUMES } from "@/lib/demo/seed";
-import { TEMPLATES, type TemplateId } from "@/lib/demo/types";
+import { SAMPLE_RESUME_CONTENT } from "@/lib/resume/defaults";
+import {
+  TEMPLATES,
+  type ResumeRecord,
+  type TemplateId,
+} from "@/lib/resume/types";
+
+const PREVIEW_RESUME: ResumeRecord = {
+  id: "template-preview",
+  title: "Template preview",
+  targetRole: "Product Designer",
+  template: "modern",
+  accent: "#416af5",
+  density: "comfortable",
+  content: SAMPLE_RESUME_CONTENT,
+  version: 0,
+  createdAt: "2026-01-01T00:00:00.000Z",
+  updatedAt: "2026-01-01T00:00:00.000Z",
+};
 
 const FACTS = [
   {
@@ -35,10 +52,10 @@ const FACTS = [
 ];
 
 export function TemplatesClient() {
-  const { resumes } = useDemoStore();
+  const { resumes } = useWorkspace();
   const [createOpen, setCreateOpen] = useState(false);
   const [selected, setSelected] = useState<TemplateId>("modern");
-  const source = resumes[0] ?? DEMO_RESUMES[0];
+  const source = resumes[0] ?? PREVIEW_RESUME;
 
   function choose(template: TemplateId) {
     setSelected(template);

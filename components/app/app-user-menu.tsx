@@ -13,10 +13,11 @@ import {
   Settings,
   Sparkles,
 } from "lucide-react";
-import { useDemoStore } from "./demo-store";
+import { signOut } from "@/app/actions/account";
+import { useWorkspace } from "./workspace-store";
 
 export function AppUserMenu() {
-  const { profile } = useDemoStore();
+  const { profile } = useWorkspace();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -99,10 +100,12 @@ export function AppUserMenu() {
                 View plan <ArrowUpRight size={12} aria-hidden="true" />
               </Link>
             </div>
-            <Link href="/" role="menuitem" onClick={() => setOpen(false)}>
-              <LogOut size={15} aria-hidden="true" />
-              Exit demo
-            </Link>
+            <form action={signOut}>
+              <button type="submit" role="menuitem">
+                <LogOut size={15} aria-hidden="true" />
+                Sign out
+              </button>
+            </form>
           </div>
         </div>
       ) : null}

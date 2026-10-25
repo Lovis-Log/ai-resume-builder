@@ -13,6 +13,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import type { ResumeContent } from "../resume/schema";
+import type { LastTailoredFor } from "../resume/types";
 
 export const profiles = pgTable("profiles", {
   id: uuid("id").primaryKey(),
@@ -32,6 +33,11 @@ export const resumes = pgTable(
       .notNull()
       .references(() => profiles.id, { onDelete: "cascade" }),
     title: text("title").notNull(),
+    targetRole: text("target_role").notNull().default(""),
+    template: text("template").notNull().default("modern"),
+    accent: text("accent").notNull().default("#416af5"),
+    density: text("density").notNull().default("comfortable"),
+    lastTailoredFor: jsonb("last_tailored_for").$type<LastTailoredFor>(),
     content: jsonb("content").$type<ResumeContent>().notNull(),
     version: integer("version").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -39,6 +45,14 @@ export const resumes = pgTable(
   },
   (table) => [
     index("resumes_user_updated_idx").on(table.userId, table.updatedAt),
+    check(
+      "resumes_template_check",
+      sql`${table.template} in ('modern','classic','editorial')`,
+    ),
+    check(
+      "resumes_density_check",
+      sql`${table.density} in ('compact','comfortable','airy')`,
+    ),
   ],
 );
 

@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import { Check, Plus } from "lucide-react";
 import { AppModal } from "@/components/app/app-modal";
 import { TemplateMini } from "@/components/app/atoms";
-import { useDemoStore } from "@/components/app/demo-store";
+import { useWorkspace } from "@/components/app/workspace-store";
 import { useToast } from "@/components/ui/toast";
-import type { CreateResumeInput } from "@/lib/demo/seed";
-import { TEMPLATES, type TemplateId } from "@/lib/demo/types";
+import type { CreateResumeInput } from "@/lib/resume/types";
+import { TEMPLATES, type TemplateId } from "@/lib/resume/types";
 import { cn } from "@/lib/utils";
 
 export function CreateResumeDialog({
@@ -21,13 +21,14 @@ export function CreateResumeDialog({
   initialTemplate?: TemplateId;
 }) {
   const router = useRouter();
-  const { createResume } = useDemoStore();
+  const { createResume } = useWorkspace();
   const { toast } = useToast();
   const [title, setTitle] = useState("");
   const [template, setTemplate] = useState<TemplateId>(initialTemplate);
   const [withSample, setWithSample] = useState(false);
+  const [pending, setPending] = useState(false);
 
-  function create(event: FormEvent) {
+  async function create(event: FormEvent) {
     event.preventDefault();
     if (!title.trim()) {
       toast("Give this resume a name to keep it findable.", "error");
@@ -39,10 +40,16 @@ export function CreateResumeDialog({
       template,
       startWithExample: withSample,
     };
-    const resume = createResume(input);
-    onClose();
-    toast("Resume created. This demo saves locally.", "success");
-    router.push(`/resume/${resume.id}`);
+
+    setPending(true);
+    try {
+      const resume = await createResume(input);
+      onClose();
+      toast("Resume created.", "success");
+      router.push(`/resume/${resume.id}`);
+    } finally {
+      setPending(false);
+    }
   }
 
   return (
@@ -61,9 +68,10 @@ export function CreateResumeDialog({
             type="submit"
             form="create-resume-form"
             className="app-btn app-btn--primary"
+            disabled={pending}
           >
             <Plus size={16} aria-hidden="true" />
-            Create resume
+            {pending ? "Creating…" : "Create resume"}
           </button>
         </>
       }

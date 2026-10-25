@@ -4,7 +4,6 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import Link from "next/link";
@@ -19,11 +18,11 @@ import {
   WandSparkles,
 } from "lucide-react";
 import { AppModal } from "@/components/app/app-modal";
-import { useDemoStore } from "@/components/app/demo-store";
+import { useWorkspace } from "@/components/app/workspace-store";
 import { LumeLogo } from "@/components/brand/logo";
 import { useToast } from "@/components/ui/toast";
-import { computeDemoScore } from "@/lib/demo/score";
-import type { DemoTool } from "@/lib/demo/types";
+import { computeResumeScore } from "@/lib/score/studio";
+import type { WorkspaceTool } from "@/lib/resume/types";
 import { AiPanel } from "./ai-panel";
 import { DesignPanel } from "./design-panel";
 import { ExportDialog } from "./export-dialog";
@@ -34,7 +33,6 @@ import { StudioTopbar } from "./studio-topbar";
 import {
   STUDIO_TOOLS,
   type AiPanelFocus,
-  type SaveState,
   type StudioSection,
 } from "./studio-types";
 import { TailorPanel } from "./tailor-panel";
@@ -50,22 +48,20 @@ const INITIAL_SECTIONS: StudioSection[] = [
 export function StudioClient() {
   const params = useParams<{ id: string }>();
   const resumeId = typeof params.id === "string" ? params.id : params.id?.[0];
-  const { getResume, hydrated, updateResume } = useDemoStore();
+  const { getResume, hydrated, updateResume, saveStateFor } = useWorkspace();
   const { toast } = useToast();
   const resume = resumeId ? getResume(resumeId) : undefined;
 
-  const [tool, setTool] = useState<DemoTool>("write");
+  const [tool, setTool] = useState<WorkspaceTool>("write");
   const [mobilePreview, setMobilePreview] = useState(false);
   const [zoom, setZoom] = useState(0.72);
   const [pageCount, setPageCount] = useState(1);
-  const [saveState, setSaveState] = useState<SaveState>("saved");
   const [openSections, setOpenSections] = useState<Set<StudioSection>>(
     () => new Set(INITIAL_SECTIONS),
   );
   const [aiFocus, setAiFocus] = useState<AiPanelFocus>(null);
   const [exportOpen, setExportOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
-  const lastUpdatedRef = useRef<string | null>(null);
 
   useEffect(() => {
     const width = window.innerWidth;
@@ -84,7 +80,7 @@ export function StudioClient() {
   }, []);
 
   useEffect(() => {
-    const hash = window.location.hash.replace("#", "") as DemoTool;
+    const hash = window.location.hash.replace("#", "") as WorkspaceTool;
     if (!STUDIO_TOOLS.some((item) => item.id === hash)) return;
     const timer = window.setTimeout(() => setTool(hash), 0);
     return () => window.clearTimeout(timer);
@@ -100,23 +96,10 @@ export function StudioClient() {
   }, [resumeId]);
 
   useEffect(() => {
-    if (!resume) return;
-    if (lastUpdatedRef.current === null) {
-      lastUpdatedRef.current = resume.updatedAt;
-      return;
-    }
-    if (lastUpdatedRef.current === resume.updatedAt) return;
-    lastUpdatedRef.current = resume.updatedAt;
-    setSaveState("saving");
-    const timer = window.setTimeout(() => setSaveState("saved"), 640);
-    return () => window.clearTimeout(timer);
-  }, [resume?.updatedAt, resume]);
-
-  useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") {
         event.preventDefault();
-        toast("All changes are saved in this browser.", "success");
+        toast("Changes save automatically to your Neon workspace.", "success");
       }
     };
     window.addEventListener("keydown", onKeyDown);
@@ -124,7 +107,7 @@ export function StudioClient() {
   }, [toast]);
 
   const score = useMemo(
-    () => (resume ? computeDemoScore(resume.content, pageCount) : null),
+    () => (resume ? computeResumeScore(resume.content, pageCount) : null),
     [resume, pageCount],
   );
 
@@ -136,7 +119,7 @@ export function StudioClient() {
     [resumeId, updateResume],
   );
 
-  const setHash = useCallback((nextTool: DemoTool) => {
+  const setHash = useCallback((nextTool: WorkspaceTool) => {
     if (typeof window === "undefined") return;
     const url = new URL(window.location.href);
     url.hash = nextTool === "write" ? "" : nextTool;
@@ -144,7 +127,7 @@ export function StudioClient() {
   }, []);
 
   const selectTool = useCallback(
-    (nextTool: DemoTool) => {
+    (nextTool: WorkspaceTool) => {
       setTool(nextTool);
       setMobilePreview(false);
       if (nextTool === "ai") setAiFocus(null);
@@ -244,7 +227,7 @@ export function StudioClient() {
         <h1>This resume isn&apos;t in your workspace.</h1>
         <p>
           It may have been deleted, or the link may belong to a different
-          browser. Your other pages are waiting.
+          account. Your other pages are waiting.
         </p>
         <Link href="/dashboard" className="app-btn app-btn--primary">
           <ArrowLeft size={15} aria-hidden="true" />
@@ -262,7 +245,7 @@ export function StudioClient() {
         <StudioTopbar
           key={resume.id}
           title={resume.title}
-          saveState={saveState}
+          saveState={resume ? saveStateFor(resume.id) : "saved"}
           score={score?.score ?? 0}
           onRename={rename}
           onOpenDesign={() => selectTool("design")}
@@ -309,7 +292,7 @@ export function StudioClient() {
               active={tool === "design"}
               onUpdate={updateCurrent}
               onExportJson={() => {
-                import("@/lib/demo/download").then(({ downloadResumeJson }) => {
+                import("@/lib/resume/export").then(({ downloadResumeJson }) => {
                   downloadResumeJson(resume);
                   toast("Editable JSON downloaded.", "success");
                 });
@@ -324,11 +307,7 @@ export function StudioClient() {
               onGoWrite={() => focusSection("summary")}
             />
 
-            <TailorPanel
-              resume={resume}
-              active={tool === "tailor"}
-              onUpdate={updateCurrent}
-            />
+            <TailorPanel resume={resume} active={tool === "tailor"} />
 
             <ScorePanel
               resume={resume}
@@ -390,7 +369,7 @@ export function StudioClient() {
         open={helpOpen}
         onClose={() => setHelpOpen(false)}
         title="A few quiet shortcuts."
-        description="Everything in this studio is local to your browser."
+        description="Your resume is stored in Neon and synced live across your tabs."
         width="md"
         footer={
           <button
@@ -408,10 +387,10 @@ export function StudioClient() {
               <Sparkles size={16} aria-hidden="true" />
             </span>
             <div>
-              <h3>AI is simulated</h3>
+              <h3>AI is opt-in</h3>
               <p>
-                Drafts and tailoring use pre-written local suggestions. No
-                request leaves this page.
+                Drafts and tailoring call DeepSeek through a Neon Function after
+                you accept the AI notice.
               </p>
             </div>
           </div>
@@ -422,8 +401,8 @@ export function StudioClient() {
             <div>
               <h3>Everything saves automatically</h3>
               <p>
-                Resumes live in this browser&apos;s local storage. Reset the
-                demo or export JSON from Settings whenever you like.
+                Resumes live in Neon Postgres and update live in other tabs.
+                Export JSON from Settings whenever you like.
               </p>
             </div>
           </div>
@@ -454,8 +433,8 @@ export function StudioClient() {
           <div className="help-shortcuts">
             <Keyboard size={15} aria-hidden="true" />
             <span>
-              <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>S</kbd> to confirm a local
-              save
+              <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>S</kbd> to confirm the
+              current save state
             </span>
           </div>
         </div>

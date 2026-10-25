@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
+import { LoginClient } from "./login-client";
 
 export const metadata: Metadata = {
   title: "Sign in",
@@ -7,6 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function LoginPage() {
-  // Authentication is intentionally disabled for the local product demo.
-  redirect("/dashboard");
+  return <LoginClient />;
 }

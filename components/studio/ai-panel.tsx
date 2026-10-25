@@ -5,19 +5,20 @@ import {
   ArrowRight,
   Check,
   Loader2,
+  ShieldCheck,
   Sparkles,
   WandSparkles,
   X,
 } from "lucide-react";
-import { useDemoStore } from "@/components/app/demo-store";
+import { useWorkspace } from "@/components/app/workspace-store";
 import { useToast } from "@/components/ui/toast";
+import { acceptAiConsent } from "@/app/actions/consent";
 import {
-  AI_SUMMARY_STYLES,
-  mockImprovedBullet,
-  mockSummary,
-  type AiSummaryStyle,
-} from "@/lib/demo/ai";
-import type { DemoResume } from "@/lib/demo/types";
+  generateSummary as generateSummaryAction,
+  improveBullet as improveBulletAction,
+} from "@/app/actions/ai";
+import { AI_SUMMARY_STYLES, type AiSummaryStyle } from "@/lib/ai/styles";
+import type { ResumeRecord } from "@/lib/resume/types";
 import { cn } from "@/lib/utils";
 import { PanelHeader } from "./panel-header";
 import type { AiPanelFocus } from "./studio-types";
@@ -42,6 +43,10 @@ function LoadingLines({ count = 3 }: { count?: number }) {
   );
 }
 
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "The AI request failed.";
+}
+
 export function AiPanel({
   resume,
   active,
@@ -49,22 +54,25 @@ export function AiPanel({
   onUpdate,
   onGoWrite,
 }: {
-  resume: DemoResume;
+  resume: ResumeRecord;
   active: boolean;
   focus: AiPanelFocus;
-  onUpdate: (updater: (resume: DemoResume) => DemoResume) => void;
+  onUpdate: (updater: (resume: ResumeRecord) => ResumeRecord) => void;
   onGoWrite: () => void;
 }) {
-  const { profile, consumeAI } = useDemoStore();
+  const { profile, applyUsage, applyConsent } = useWorkspace();
   const { toast } = useToast();
   const [mode, setMode] = useState<Mode>("summary");
   const [style, setStyle] = useState<AiSummaryStyle>("measured");
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryDraft, setSummaryDraft] = useState<string | null>(null);
+  const [summaryProvider, setSummaryProvider] = useState<string>("deepseek");
   const [selectedBulletKey, setSelectedBulletKey] = useState<string>("");
   const [bulletLoading, setBulletLoading] = useState(false);
   const [bulletDraft, setBulletDraft] = useState<string | null>(null);
   const [bulletDraftKey, setBulletDraftKey] = useState<string | null>(null);
+  const [bulletProvider, setBulletProvider] = useState<string>("deepseek");
+  const [consentPending, setConsentPending] = useState(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const remaining = Math.max(0, profile.aiIncluded - profile.aiUsed);
 
@@ -78,8 +86,7 @@ export function AiPanel({
             index,
             bullet,
             label: `${entry.company || entry.title || "Role"} — ${
-              bullet.trim().slice(0, 48) ||
-              `bullet ${index + 1}`
+              bullet.trim().slice(0, 48) || `bullet ${index + 1}`
             }${bullet.trim().length > 48 ? "…" : ""}`,
           }))
           .filter((option) => option.bullet.trim()),
@@ -111,30 +118,56 @@ export function AiPanel({
 
   function canSpend() {
     if (remaining <= 0) {
-      toast("No AI actions left in this demo. Reset it from Settings.", "error");
+      toast("No AI actions left. Upgrade your plan for more.", "error");
+      return false;
+    }
+    if (!profile.hasAiConsent) {
+      toast("Accept the AI notice before sending resume text.", "error");
       return false;
     }
     return true;
   }
 
+  async function acceptConsent() {
+    setConsentPending(true);
+    try {
+      await acceptAiConsent();
+      applyConsent();
+      toast("AI enabled. Resume text is sent only when you run an action.", "success");
+    } catch (error) {
+      toast(errorMessage(error), "error");
+    } finally {
+      setConsentPending(false);
+    }
+  }
+
   const generateSummary = useCallback(
-    (nextStyle = style) => {
+    async (nextStyle = style) => {
       if (!canSpend()) return;
       setSummaryLoading(true);
       setSummaryDraft(null);
-      later(() => {
-        setSummaryLoading(false);
-        setSummaryDraft(mockSummary(resume, nextStyle));
-        consumeAI(1);
+      try {
+        const result = await generateSummaryAction({
+          resumeId: resume.id,
+          style: nextStyle,
+          idempotencyKey: crypto.randomUUID(),
+        });
+        setSummaryDraft(result.summary);
+        setSummaryProvider(result.provider);
+        applyUsage(result.usage.remaining);
         toast("A suggestion is ready. Review it before you apply.", "success");
-      }, 950);
+      } catch (error) {
+        toast(errorMessage(error), "error");
+      } finally {
+        setSummaryLoading(false);
+      }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [style, resume, remaining, consumeAI],
+    [style, resume.id, remaining, profile.hasAiConsent, applyUsage],
   );
 
   const generateBullet = useCallback(
-    (key = effectiveBulletKey) => {
+    async (key = effectiveBulletKey) => {
       const option = bulletOptions.find((item) => item.key === key);
       if (!option) {
         toast("Add a highlight to your experience first.", "error");
@@ -145,24 +178,32 @@ export function AiPanel({
       setBulletLoading(true);
       setBulletDraft(null);
       setBulletDraftKey(key);
-      const entry = resume.content.experience.find(
-        (item) => item.id === option.experienceId,
-      );
-      later(() => {
-        setBulletLoading(false);
-        setBulletDraft(
-          mockImprovedBullet(
-            option.bullet,
-            entry?.title ?? "",
-            entry?.company ?? "",
-          ),
-        );
-        consumeAI(1);
+      try {
+        const result = await improveBulletAction({
+          resumeId: resume.id,
+          experienceId: option.experienceId,
+          bulletIndex: option.index,
+          idempotencyKey: crypto.randomUUID(),
+        });
+        setBulletDraft(result.bullet);
+        setBulletProvider(result.provider);
+        applyUsage(result.usage.remaining);
         toast("A sharper line is ready for your review.", "success");
-      }, 900);
+      } catch (error) {
+        toast(errorMessage(error), "error");
+      } finally {
+        setBulletLoading(false);
+      }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [effectiveBulletKey, bulletOptions, resume, remaining, consumeAI],
+    [
+      effectiveBulletKey,
+      bulletOptions,
+      resume.id,
+      remaining,
+      profile.hasAiConsent,
+      applyUsage,
+    ],
   );
 
   useEffect(() => {
@@ -180,9 +221,13 @@ export function AiPanel({
       setMode("bullets");
       const key = `${focus.experienceId}:${focus.bulletIndex}`;
       setSelectedBulletKey(key);
-      if (bulletOptions.some((option) => option.key === key) && remaining > 0) {
+      if (
+        bulletOptions.some((option) => option.key === key) &&
+        remaining > 0 &&
+        profile.hasAiConsent
+      ) {
         later(() => {
-          generateBullet(key);
+          void generateBullet(key);
         }, 180);
       }
     }, 0);
@@ -247,15 +292,36 @@ export function AiPanel({
           }
         />
 
-        <div className="ai-demo-note">
-          <span className="ai-demo-orb" aria-hidden="true">
-            <WandSparkles size={15} />
-          </span>
-          <p>
-            <strong>Simulated locally for this demo.</strong>
-            The suggestions are pre-written. Nothing leaves your browser.
-          </p>
-        </div>
+        {profile.hasAiConsent ? (
+          <div className="ai-demo-note">
+            <span className="ai-demo-orb" aria-hidden="true">
+              <WandSparkles size={15} />
+            </span>
+            <p>
+              <strong>DeepSeek through a Neon Function.</strong>
+              Only the text needed for this action leaves your workspace.
+            </p>
+          </div>
+        ) : (
+          <div className="ai-demo-note">
+            <span className="ai-demo-orb" aria-hidden="true">
+              <ShieldCheck size={15} />
+            </span>
+            <p>
+              <strong>AI is opt-in.</strong>
+              Resume text and job descriptions are sent to DeepSeek for this
+              action.{" "}
+              <button
+                type="button"
+                className="app-text-button"
+                onClick={acceptConsent}
+                disabled={consentPending}
+              >
+                {consentPending ? "Enabling…" : "Accept and enable AI"}
+              </button>
+            </p>
+          </div>
+        )}
 
         <div className="ai-mode-tabs" role="tablist" aria-label="AI writing mode">
           <button
@@ -324,7 +390,7 @@ export function AiPanel({
                     <Sparkles size={14} aria-hidden="true" />
                     Suggested summary
                   </span>
-                  <span className="ai-local-label">Demo</span>
+                  <span className="ai-local-label">{summaryProvider === "deepseek" ? "DeepSeek" : "Fallback"}</span>
                 </div>
                 <div className="ai-compare">
                   <div className="ai-compare-block">
@@ -457,7 +523,7 @@ export function AiPanel({
                         <Sparkles size={14} aria-hidden="true" />
                         A sharper version
                       </span>
-                      <span className="ai-local-label">Demo</span>
+                      <span className="ai-local-label">{bulletProvider === "deepseek" ? "DeepSeek" : "Fallback"}</span>
                     </div>
                     <div className="ai-compare ai-compare--bullets">
                       <div className="ai-compare-block is-suggested">
@@ -484,7 +550,7 @@ export function AiPanel({
                       </button>
                     </div>
                     <p className="ai-source-note">
-                      Original facts kept. The phrasing is a local simulation.
+                      Original facts kept. The wording is generated from your resume.
                     </p>
                   </div>
                 ) : (
@@ -514,8 +580,8 @@ export function AiPanel({
         <div className="ai-panel-footer">
           <WandSparkles size={14} aria-hidden="true" />
           <span>
-            This prototype never calls a model. Results are deterministic so
-            you can explore the full review flow.
+            Requests run inside a Neon Function after consent. Failed calls do
+            not consume an action.
           </span>
         </div>
       </div>

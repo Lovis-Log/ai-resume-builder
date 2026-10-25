@@ -8,10 +8,12 @@ const monthValue = z
 
 export const contactSchema = z.object({
   fullName: shortText,
+  headline: shortText.default(""),
   // Allow partial input while autosaving. The score checks email validity.
   email: z.string().max(200),
   phone: shortText,
   location: shortText,
+  website: z.string().max(200).default(""),
 });
 
 export const experienceEntrySchema = z.object({
@@ -20,7 +22,7 @@ export const experienceEntrySchema = z.object({
   company: shortText,
   location: shortText,
   startDate: monthValue,
-  endDate: monthValue.nullable(),
+  endDate: monthValue.nullable().transform((value) => value ?? ""),
   current: z.boolean(),
   bullets: z.array(z.string().max(500)).max(10),
 });
@@ -29,10 +31,11 @@ export const educationEntrySchema = z.object({
   id: z.string().min(1).max(100),
   school: shortText,
   degree: shortText,
-  major: shortText,
+  // Kept for older exports and the PDF renderer; the studio UI omits it.
+  major: shortText.default(""),
   location: shortText,
   startDate: monthValue,
-  endDate: monthValue,
+  endDate: monthValue.nullable().transform((value) => value ?? ""),
   gpa: z.string().max(20),
   coursework: z.string().max(1000),
   honors: z.string().max(1000),
@@ -43,7 +46,7 @@ export const projectEntrySchema = z.object({
   name: shortText,
   link: z.string().max(500),
   startDate: monthValue,
-  endDate: monthValue,
+  endDate: monthValue.nullable().transform((value) => value ?? ""),
   bullets: z.array(z.string().max(500)).max(10),
 });
 

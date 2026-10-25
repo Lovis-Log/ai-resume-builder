@@ -1,5 +1,5 @@
 import { fileStem } from "./format";
-import type { DemoResume, DemoState } from "./types";
+import type { ResumeRecord, WorkspaceData } from "./types";
 
 function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
@@ -12,12 +12,11 @@ function downloadBlob(blob: Blob, filename: string) {
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-export function downloadResumeJson(resume: DemoResume) {
+export function downloadResumeJson(resume: ResumeRecord) {
   const payload = {
     app: "Lume Resume Studio",
-    schemaVersion: 1,
+    schemaVersion: 2,
     exportedAt: new Date().toISOString(),
-    note: "Local demo export. Unsaved changes in this browser are included.",
     resume,
   };
   downloadBlob(
@@ -28,10 +27,10 @@ export function downloadResumeJson(resume: DemoResume) {
   );
 }
 
-export function downloadWorkspaceJson(state: DemoState) {
+export function downloadWorkspaceJson(state: WorkspaceData) {
   const payload = {
     app: "Lume Resume Studio",
-    schemaVersion: 1,
+    schemaVersion: 2,
     exportedAt: new Date().toISOString(),
     ...state,
   };

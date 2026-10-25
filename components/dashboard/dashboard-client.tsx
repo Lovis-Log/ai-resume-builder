@@ -28,15 +28,15 @@ import {
 import { AppTopbar } from "@/components/app/app-topbar";
 import { AppModal } from "@/components/app/app-modal";
 import { ScorePill, ScoreRing } from "@/components/app/atoms";
-import { useDemoStore } from "@/components/app/demo-store";
+import { useWorkspace } from "@/components/app/workspace-store";
 import { useToast } from "@/components/ui/toast";
-import { computeDemoScore } from "@/lib/demo/score";
-import { formatUpdated, splitSkills } from "@/lib/demo/format";
+import { computeResumeScore } from "@/lib/score/studio";
+import { formatUpdated, splitSkills } from "@/lib/resume/format";
 import { CreateResumeDialog } from "@/components/dashboard/create-resume-dialog";
 import {
   TEMPLATES,
-  type DemoResume,
-} from "@/lib/demo/types";
+  type ResumeRecord,
+} from "@/lib/resume/types";
 import { cn } from "@/lib/utils";
 import { ResumeDocument } from "@/components/studio/resume-document";
 
@@ -44,7 +44,7 @@ function greeting(name: string) {
   return name.split(" ")[0] || "there";
 }
 
-function DashboardPreview({ resume }: { resume: DemoResume }) {
+function DashboardPreview({ resume }: { resume: ResumeRecord }) {
   return (
     <div className="dash-paper-frame" aria-hidden="true">
       <span className="dash-paper-glow" />
@@ -65,7 +65,7 @@ function ResumeCard({
   onDelete,
   onTailor,
 }: {
-  resume: DemoResume;
+  resume: ResumeRecord;
   featured?: boolean;
   menuOpen: boolean;
   onMenuToggle: () => void;
@@ -74,7 +74,7 @@ function ResumeCard({
   onDelete: () => void;
   onTailor: () => void;
 }) {
-  const score = computeDemoScore(resume.content, 1);
+  const score = computeResumeScore(resume.content, 1);
   const skillCount = splitSkills(resume.content.skills).length;
   const template = TEMPLATES.find((item) => item.id === resume.template);
 
@@ -173,14 +173,15 @@ export function DashboardClient() {
     deleteResume,
     duplicateResume,
     updateResume,
-  } = useDemoStore();
+    liveStatus,
+  } = useWorkspace();
   const { toast } = useToast();
 
   const [createOpen, setCreateOpen] = useState(false);
   const [menuId, setMenuId] = useState<string | null>(null);
-  const [renameTarget, setRenameTarget] = useState<DemoResume | null>(null);
+  const [renameTarget, setRenameTarget] = useState<ResumeRecord | null>(null);
   const [renameValue, setRenameValue] = useState("");
-  const [deleteTarget, setDeleteTarget] = useState<DemoResume | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<ResumeRecord | null>(null);
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query.trim().toLowerCase());
 
@@ -216,7 +217,7 @@ export function DashboardClient() {
       new Map(
         sorted.map((resume) => [
           resume.id,
-          computeDemoScore(resume.content, 1),
+          computeResumeScore(resume.content, 1),
         ]),
       ),
     [sorted],
@@ -242,7 +243,7 @@ export function DashboardClient() {
     : 0;
   const actionsLeft = Math.max(0, profile.aiIncluded - profile.aiUsed);
   const leadResume = sorted[0] ?? null;
-  const bestResume = sorted.reduce<DemoResume | null>((best, candidate) => {
+  const bestResume = sorted.reduce<ResumeRecord | null>((best, candidate) => {
     if (!best) return candidate;
     return (scores.get(candidate.id)?.score ?? 0) >
       (scores.get(best.id)?.score ?? 0)
@@ -256,7 +257,7 @@ export function DashboardClient() {
   const featured = filtered[0] ?? null;
   const rest = filtered.slice(1);
 
-  const openRename = useCallback((resume: DemoResume) => {
+  const openRename = useCallback((resume: ResumeRecord) => {
     setMenuId(null);
     setRenameTarget(resume);
     setRenameValue(resume.title);
@@ -277,14 +278,14 @@ export function DashboardClient() {
 
   function confirmDelete() {
     if (!deleteTarget) return;
-    deleteResume(deleteTarget.id);
+    void deleteResume(deleteTarget.id);
     setDeleteTarget(null);
-    toast("Resume removed from this demo.", "success");
+    toast("Resume deleted.", "success");
   }
 
-  function handleDuplicate(resume: DemoResume) {
+  async function handleDuplicate(resume: ResumeRecord) {
     setMenuId(null);
-    const duplicate = duplicateResume(resume.id);
+    const duplicate = await duplicateResume(resume.id);
     if (duplicate) {
       toast("A copy is ready on your desk.", "success");
     }
@@ -341,8 +342,16 @@ export function DashboardClient() {
           <div className="workspace-status">
             <span className="workspace-status-dot" aria-hidden="true" />
             <span>
-              Saved on this device
-              <small>Local demo · no account needed</small>
+              {liveStatus === "live" || liveStatus === "polling"
+                ? "Synced with Neon"
+                : "Connecting to Neon"}
+              <small>
+                {liveStatus === "live"
+                  ? "Live across your tabs and devices"
+                  : liveStatus === "polling"
+                    ? "Synced via secure polling"
+                    : "Live updates will resume shortly"}
+              </small>
             </span>
           </div>
         </section>
@@ -598,8 +607,8 @@ export function DashboardClient() {
             <div className="demo-note">
               <LayoutTemplate size={15} aria-hidden="true" />
               <p>
-                This is a local product demo. AI and billing are simulated;
-                resumes stay in your browser.
+                Your workspace is stored in Neon Postgres, authenticated with
+                Neon Auth, and synced live with Neon Realtime.
               </p>
             </div>
           </aside>

@@ -12,10 +12,10 @@ import {
 import { AppModal } from "@/components/app/app-modal";
 import { TemplateMini } from "@/components/app/atoms";
 import { useToast } from "@/components/ui/toast";
-import { downloadResumeJson } from "@/lib/demo/download";
-import { fileStem } from "@/lib/demo/format";
-import type { DemoResume } from "@/lib/demo/types";
-import { TEMPLATES } from "@/lib/demo/types";
+import { downloadResumeJson } from "@/lib/resume/export";
+import { fileStem } from "@/lib/resume/format";
+import type { ResumeRecord } from "@/lib/resume/types";
+import { TEMPLATES } from "@/lib/resume/types";
 
 export function ExportDialog({
   open,
@@ -25,7 +25,7 @@ export function ExportDialog({
   onPrint,
 }: {
   open: boolean;
-  resume: DemoResume;
+  resume: ResumeRecord;
   pageCount: number;
   onClose: () => void;
   onPrint: () => void;
@@ -43,7 +43,7 @@ export function ExportDialog({
       open={open}
       onClose={onClose}
       title="Take this page with you."
-      description="Everything here is generated in your browser. Choose a format that fits what's next."
+      description="Render the page as a PDF or download an editable copy of the resume."
       width="lg"
     >
       <div className="export-summary">
@@ -128,8 +128,8 @@ export function ExportDialog({
       <div className="export-privacy">
         <LockKeyhole size={14} aria-hidden="true" />
         <span>
-          No upload, no account, no hidden copy. The page is rendered from your
-          local browser data.
+          The PDF is rendered from your saved Neon workspace. The JSON copy
+          downloads straight to this device.
         </span>
       </div>
     </AppModal>

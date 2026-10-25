@@ -15,19 +15,19 @@ import {
   UserRound,
   WandSparkles,
 } from "lucide-react";
-import { splitSkills } from "@/lib/demo/format";
+import { splitSkills } from "@/lib/resume/format";
 import type {
-  DemoEducation,
-  DemoExperience,
-  DemoProject,
-  DemoResume,
-  DemoResumeContent,
-} from "@/lib/demo/types";
+  EducationEntry,
+  ExperienceEntry,
+  ProjectEntry,
+  ResumeContent,
+} from "@/lib/resume/schema";
+import type { ResumeRecord } from "@/lib/resume/types";
 import { cn } from "@/lib/utils";
 import { PanelHeader } from "./panel-header";
 import type { StudioSection } from "./studio-types";
 
-type ContentUpdater = (updater: (content: DemoResumeContent) => DemoResumeContent) => void;
+type ContentUpdater = (updater: (content: ResumeContent) => ResumeContent) => void;
 
 type SectionMeta = {
   id: StudioSection;
@@ -86,7 +86,7 @@ function createId(prefix: string) {
   return `${prefix}-${crypto.randomUUID()}`;
 }
 
-function emptyExperience(): DemoExperience {
+function emptyExperience(): ExperienceEntry {
   return {
     id: createId("exp"),
     title: "",
@@ -99,11 +99,12 @@ function emptyExperience(): DemoExperience {
   };
 }
 
-function emptyEducation(): DemoEducation {
+function emptyEducation(): EducationEntry {
   return {
     id: createId("edu"),
     school: "",
     degree: "",
+    major: "",
     location: "",
     startDate: "",
     endDate: "",
@@ -113,7 +114,7 @@ function emptyEducation(): DemoEducation {
   };
 }
 
-function emptyProject(): DemoProject {
+function emptyProject(): ProjectEntry {
   return {
     id: createId("project"),
     name: "",
@@ -268,13 +269,13 @@ export function WritePanel({
   onOpenAISummary,
   onImproveBullet,
 }: {
-  resume: DemoResume;
+  resume: ResumeRecord;
   active: boolean;
   pageCount: number;
   openSections: Set<StudioSection>;
   onToggleSection: (section: StudioSection) => void;
   onEnsureSection: (section: StudioSection) => void;
-  onUpdate: (updater: (resume: DemoResume) => DemoResume) => void;
+  onUpdate: (updater: (resume: ResumeRecord) => ResumeRecord) => void;
   onOpenAISummary: () => void;
   onImproveBullet: (experienceId: string, bulletIndex: number) => void;
 }) {
@@ -289,7 +290,7 @@ export function WritePanel({
   };
 
   function updateContact(
-    field: keyof DemoResumeContent["contact"],
+    field: keyof ResumeContent["contact"],
     value: string,
   ) {
     onUpdate((current) => ({
@@ -305,7 +306,7 @@ export function WritePanel({
 
   function updateExperience(
     experienceId: string,
-    patch: Partial<DemoExperience>,
+    patch: Partial<ExperienceEntry>,
   ) {
     updateContent((current) => ({
       ...current,
@@ -375,7 +376,7 @@ export function WritePanel({
     }));
   }
 
-  function updateEducation(id: string, patch: Partial<DemoEducation>) {
+  function updateEducation(id: string, patch: Partial<EducationEntry>) {
     updateContent((current) => ({
       ...current,
       education: current.education.map((entry) =>
@@ -399,7 +400,7 @@ export function WritePanel({
     }));
   }
 
-  function updateProject(id: string, patch: Partial<DemoProject>) {
+  function updateProject(id: string, patch: Partial<ProjectEntry>) {
     updateContent((current) => ({
       ...current,
       projects: current.projects.map((entry) =>

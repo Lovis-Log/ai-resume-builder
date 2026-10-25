@@ -11,10 +11,10 @@ import { TemplateMini } from "@/components/app/atoms";
 import {
   ACCENTS,
   TEMPLATES,
-  type DemoResume,
+  type ResumeRecord,
   type Density,
   type TemplateId,
-} from "@/lib/demo/types";
+} from "@/lib/resume/types";
 import { cn } from "@/lib/utils";
 import { PanelHeader } from "./panel-header";
 
@@ -30,9 +30,9 @@ export function DesignPanel({
   onUpdate,
   onExportJson,
 }: {
-  resume: DemoResume;
+  resume: ResumeRecord;
   active: boolean;
-  onUpdate: (updater: (resume: DemoResume) => DemoResume) => void;
+  onUpdate: (updater: (resume: ResumeRecord) => ResumeRecord) => void;
   onExportJson: () => void;
 }) {
   function setTemplate(template: TemplateId) {

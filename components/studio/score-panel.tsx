@@ -9,8 +9,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import { ScoreRing } from "@/components/app/atoms";
-import { computeDemoScore } from "@/lib/demo/score";
-import type { DemoResume } from "@/lib/demo/types";
+import { computeResumeScore } from "@/lib/score/studio";
+import type { ResumeRecord } from "@/lib/resume/types";
 import { cn } from "@/lib/utils";
 import { PanelHeader } from "./panel-header";
 import type { StudioSection } from "./studio-types";
@@ -22,14 +22,14 @@ export function ScorePanel({
   onFix,
   onPreview,
 }: {
-  resume: DemoResume;
+  resume: ResumeRecord;
   active: boolean;
   pageCount: number;
   onFix: (section: StudioSection) => void;
   onPreview: () => void;
 }) {
   const result = useMemo(
-    () => computeDemoScore(resume.content, pageCount),
+    () => computeResumeScore(resume.content, pageCount),
     [resume.content, pageCount],
   );
 

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LumeLogo } from "@/components/brand/logo";
 import { AppUserMenu } from "./app-user-menu";
-import { useDemoStore } from "./demo-store";
+import { useWorkspace } from "./workspace-store";
 
 const links = [
   { href: "/dashboard", label: "Workspace" },
@@ -14,7 +14,7 @@ const links = [
 
 export function AppTopbar() {
   const pathname = usePathname();
-  const { profile } = useDemoStore();
+  const { profile } = useWorkspace();
   const available = Math.max(0, profile.aiIncluded - profile.aiUsed);
 
   return (

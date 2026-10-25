@@ -9,9 +9,11 @@ import { computeScore } from "@/lib/score/compute";
 export const MARKETING_RESUME_CONTENT: ResumeContent = {
   contact: {
     fullName: "Jordan Lee",
+    headline: "Software Engineer",
     email: "jordan.lee@example.com",
     phone: "+1 (555) 012-3456",
     location: "Toronto, Canada",
+    website: "jordanlee.dev",
   },
   summary:
     "I am a computer science graduate with internship experience building accessible web applications. I like turning user feedback into shipped features across frontend and backend.",
@@ -36,7 +38,7 @@ export const MARKETING_RESUME_CONTENT: ResumeContent = {
       company: "University of Toronto",
       location: "Toronto, Canada",
       startDate: "2024-09",
-      endDate: null,
+      endDate: "",
       current: true,
       bullets: [
         "Led weekly labs for 40 students and held office hours on debugging.",

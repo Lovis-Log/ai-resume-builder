@@ -8,7 +8,7 @@ import {
   Minus,
   Plus,
 } from "lucide-react";
-import type { DemoResume } from "@/lib/demo/types";
+import type { ResumeRecord } from "@/lib/resume/types";
 import { ResumeDocument } from "./resume-document";
 import type { StudioSection } from "./studio-types";
 
@@ -23,7 +23,7 @@ export function PreviewPanel({
   onPageCountChange,
   onEditSection,
 }: {
-  resume: DemoResume;
+  resume: ResumeRecord;
   pageCount: number;
   zoom: number;
   onZoomChange: (zoom: number) => void;

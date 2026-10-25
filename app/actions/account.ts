@@ -36,7 +36,7 @@ export async function deleteAccount() {
     // The session may already be removed with the user.
   }
 
-  return { ok: true as const };
+  redirect("/login");
 }
 
 export async function signOut() {

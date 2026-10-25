@@ -16,7 +16,7 @@ export function createEmptyExperience(): ExperienceEntry {
     company: "",
     location: "",
     startDate: "",
-    endDate: null,
+    endDate: "",
     current: false,
     bullets: [""],
   };
@@ -52,9 +52,11 @@ export function createEmptyResumeContent(): ResumeContent {
   return {
     contact: {
       fullName: "",
+      headline: "",
       email: "",
       phone: "",
       location: "",
+      website: "",
     },
     summary: "",
     experience: [],
@@ -68,9 +70,11 @@ export function createSampleResumeContent(): ResumeContent {
   return {
     contact: {
       fullName: "Jordan Lee",
+      headline: "Software Engineer",
       email: "jordan.lee@example.com",
       phone: "+1 (555) 012-3456",
       location: "Toronto, Canada",
+      website: "jordanlee.dev",
     },
     summary:
       "Computer science graduate with internship experience building accessible web applications. Skilled at turning user feedback into shipped features and comfortable working across frontend and backend.",
@@ -95,7 +99,7 @@ export function createSampleResumeContent(): ResumeContent {
         company: "University of Toronto",
         location: "Toronto, Canada",
         startDate: "2024-09",
-        endDate: null,
+        endDate: "",
         current: true,
         bullets: [
           "Led weekly labs for 40 students and held office hours on debugging and data structures.",
@@ -142,9 +146,11 @@ export function createSampleResumeContent(): ResumeContent {
 export const SAMPLE_RESUME_CONTENT: ResumeContent = {
   contact: {
     fullName: "Jordan Lee",
+    headline: "Software Engineer",
     email: "jordan.lee@example.com",
     phone: "+1 (555) 012-3456",
     location: "Toronto, Canada",
+    website: "jordanlee.dev",
   },
   summary:
     "Computer science graduate with internship experience building accessible web applications. Skilled at turning user feedback into shipped features and comfortable working across frontend and backend.",
@@ -169,7 +175,7 @@ export const SAMPLE_RESUME_CONTENT: ResumeContent = {
       company: "University of Toronto",
       location: "Toronto, Canada",
       startDate: "2024-09",
-      endDate: null,
+      endDate: "",
       current: true,
       bullets: [
         "Led weekly labs for 40 students and held office hours on debugging and data structures.",

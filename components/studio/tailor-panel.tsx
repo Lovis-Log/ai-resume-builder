@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -9,24 +9,26 @@ import {
   CircleDashed,
   ClipboardPaste,
   Loader2,
+  ShieldCheck,
   Sparkles,
   Target,
   WandSparkles,
 } from "lucide-react";
-import { useDemoStore } from "@/components/app/demo-store";
+import { useWorkspace } from "@/components/app/workspace-store";
 import { useToast } from "@/components/ui/toast";
-import { DEMO_JOB_DESCRIPTION } from "@/lib/demo/seed";
 import {
-  analyzeJobMock,
-  buildTailorSuggestions,
-  extractJobMeta,
-  tailorMatchLabel,
-} from "@/lib/demo/tailoring";
+  analyzeJob,
+  applyTailoring,
+  draftTailoring,
+} from "@/app/actions/ai";
+import { acceptAiConsent } from "@/app/actions/consent";
+import { SAMPLE_JOB_DESCRIPTION } from "@/lib/resume/sample";
+import { extractJobMeta, tailorMatchLabel } from "@/lib/tailoring/display";
 import type {
-  DemoResume,
+  ResumeRecord,
   TailorKeyword,
   TailorSuggestion,
-} from "@/lib/demo/types";
+} from "@/lib/resume/types";
 import { cn } from "@/lib/utils";
 import { PanelHeader } from "./panel-header";
 
@@ -45,47 +47,56 @@ type Analysis = {
   matchPercent: number;
 };
 
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "The AI request failed.";
+}
+
 export function TailorPanel({
   resume,
   active,
-  onUpdate,
 }: {
-  resume: DemoResume;
+  resume: ResumeRecord;
   active: boolean;
-  onUpdate: (updater: (resume: DemoResume) => DemoResume) => void;
 }) {
-  const { profile, consumeAI } = useDemoStore();
+  const { profile, applyUsage, applyConsent, mergeResume } = useWorkspace();
   const { toast } = useToast();
   const [phase, setPhase] = useState<Phase>("input");
-  const [jobDescription, setJobDescription] = useState(DEMO_JOB_DESCRIPTION);
+  const [jobDescription, setJobDescription] = useState(SAMPLE_JOB_DESCRIPTION);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [suggestions, setSuggestions] = useState<TailorSuggestion[]>([]);
+  const [runId, setRunId] = useState<string | null>(null);
+  const [provider, setProvider] = useState<string>("deepseek");
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const [applying, setApplying] = useState(false);
+  const [consentPending, setConsentPending] = useState(false);
   const remaining = Math.max(0, profile.aiIncluded - profile.aiUsed);
-
-  useEffect(
-    () => () => {
-      timers.current.forEach((timer) => clearTimeout(timer));
-    },
-    [],
-  );
-
-  function later(callback: () => void, delay: number) {
-    const timer = setTimeout(callback, delay);
-    timers.current.push(timer);
-    return timer;
-  }
 
   function canSpend() {
     if (remaining <= 0) {
-      toast("No AI actions left in this demo. Reset it from Settings.", "error");
+      toast("No AI actions left. Upgrade your plan for more.", "error");
+      return false;
+    }
+    if (!profile.hasAiConsent) {
+      toast("Accept the AI notice before sending a job description.", "error");
       return false;
     }
     return true;
   }
 
-  function analyze() {
+  async function acceptConsent() {
+    setConsentPending(true);
+    try {
+      await acceptAiConsent();
+      applyConsent();
+      toast("AI enabled. Job descriptions are sent only when you run an action.", "success");
+    } catch (error) {
+      toast(errorMessage(error), "error");
+    } finally {
+      setConsentPending(false);
+    }
+  }
+
+  async function analyze() {
     if (jobDescription.trim().length < 60) {
       toast("Paste a little more of the job description first.", "error");
       return;
@@ -95,27 +106,48 @@ export function TailorPanel({
     setPhase("analyzing");
     setSuggestions([]);
     setAnalysis(null);
+    setRunId(null);
 
-    later(() => {
-      const result = analyzeJobMock(resume, jobDescription);
+    try {
+      const result = await analyzeJob({
+        resumeId: resume.id,
+        jobDescription,
+        idempotencyKey: crypto.randomUUID(),
+      });
       setAnalysis(result);
+      setRunId(result.runId);
+      setProvider(result.provider);
+      applyUsage(result.usage.remaining);
       setPhase("keywords");
-      consumeAI(1);
       toast("The role is analyzed. Review the gaps next.", "success");
-    }, 1200);
+    } catch (error) {
+      setPhase("input");
+      toast(errorMessage(error), "error");
+    }
   }
 
-  function draftChanges() {
+  async function draftChanges() {
+    if (!runId) {
+      toast("Analyze the role first.", "error");
+      return;
+    }
     if (!canSpend()) return;
     setPhase("tailoring");
-    later(() => {
-      const next = buildTailorSuggestions(resume, jobDescription);
-      setSuggestions(next);
-      setSelected(new Set(next.map((item) => item.id)));
+    try {
+      const result = await draftTailoring({
+        runId,
+        idempotencyKey: crypto.randomUUID(),
+      });
+      setSuggestions(result.suggestions);
+      setSelected(new Set(result.suggestions.map((item) => item.id)));
+      setProvider(result.provider);
+      applyUsage(result.usage.remaining);
       setPhase("review");
-      consumeAI(1);
       toast("Tailored changes are ready for review.", "success");
-    }, 1250);
+    } catch (error) {
+      setPhase("keywords");
+      toast(errorMessage(error), "error");
+    }
   }
 
   function editJob() {
@@ -123,6 +155,7 @@ export function TailorPanel({
     setAnalysis(null);
     setSuggestions([]);
     setSelected(new Set());
+    setRunId(null);
   }
 
   function toggle(id: string) {
@@ -134,71 +167,30 @@ export function TailorPanel({
     });
   }
 
-  function applySelected() {
+  async function applySelected() {
+    if (!runId) return;
     if (selected.size === 0) {
       toast("Choose at least one suggestion to apply.", "error");
       return;
     }
 
-    const { role, company } = extractJobMeta(jobDescription);
-    const summarySuggestion = suggestions.find(
-      (item) => item.id === "tailor-summary" && selected.has(item.id),
-    );
-    const bulletSuggestions = suggestions.filter(
-      (item) =>
-        item.kind === "bullet" &&
-        selected.has(item.id) &&
-        item.experienceId !== undefined &&
-        item.bulletIndex !== undefined,
-    );
-
-    onUpdate((current) => {
-      let nextContent = current.content;
-      if (summarySuggestion) {
-        nextContent = {
-          ...nextContent,
-          summary: summarySuggestion.suggested,
-        };
-      }
-
-      if (bulletSuggestions.length > 0) {
-        nextContent = {
-          ...nextContent,
-          experience: nextContent.experience.map((entry) => {
-            const matches = bulletSuggestions.filter(
-              (item) => item.experienceId === entry.id,
-            );
-            if (matches.length === 0) return entry;
-            return {
-              ...entry,
-              bullets: entry.bullets.map((bullet, index) => {
-                const match = matches.find(
-                  (item) => item.bulletIndex === index,
-                );
-                return match ? match.suggested : bullet;
-              }),
-            };
-          }),
-        };
-      }
-
-      return {
-        ...current,
-        targetRole: role || current.targetRole,
-        content: nextContent,
-        lastTailoredFor: {
-          role: role || current.targetRole,
-          company,
-          matchedAt: new Date().toISOString(),
-        },
-      };
-    });
-
-    setPhase("applied");
-    toast(
-      `${selected.size} change${selected.size === 1 ? "" : "s"} applied to your resume.`,
-      "success",
-    );
+    setApplying(true);
+    try {
+      const result = await applyTailoring({
+        runId,
+        selectedIds: Array.from(selected),
+      });
+      mergeResume(result.resume);
+      setPhase("applied");
+      toast(
+        `${selected.size} change${selected.size === 1 ? "" : "s"} applied to your resume.`,
+        "success",
+      );
+    } catch (error) {
+      toast(errorMessage(error), "error");
+    } finally {
+      setApplying(false);
+    }
   }
 
   const showResults = phase === "review" || phase === "applied";
@@ -222,11 +214,33 @@ export function TailorPanel({
 
         <div className="tailor-demo-note">
           <span>
-            <Target size={15} aria-hidden="true" />
+            {profile.hasAiConsent ? (
+              <Target size={15} aria-hidden="true" />
+            ) : (
+              <ShieldCheck size={15} aria-hidden="true" />
+            )}
           </span>
           <p>
-            <strong>Local tailoring simulation.</strong> Keyword matching and
-            suggestions are generated in this browser. Nothing is sent anywhere.
+            {profile.hasAiConsent ? (
+              <>
+                <strong>{provider === "deepseek" ? "DeepSeek" : "AI fallback"} through a Neon Function.</strong>{" "}
+                Keyword matching and rewrites use the job description and your
+                resume.
+              </>
+            ) : (
+              <>
+                <strong>AI is opt-in.</strong> The job description and resume
+                text are sent to DeepSeek for this analysis.{" "}
+                <button
+                  type="button"
+                  className="app-text-button"
+                  onClick={acceptConsent}
+                  disabled={consentPending}
+                >
+                  {consentPending ? "Enabling…" : "Accept and enable AI"}
+                </button>
+              </>
+            )}
           </p>
         </div>
 
@@ -268,7 +282,7 @@ export function TailorPanel({
                 <span>{jobDescription.length.toLocaleString()} characters</span>
                 <button
                   type="button"
-                  onClick={() => setJobDescription(DEMO_JOB_DESCRIPTION)}
+                  onClick={() => setJobDescription(SAMPLE_JOB_DESCRIPTION)}
                 >
                   <ClipboardPaste size={13} aria-hidden="true" />
                   Use sample role
@@ -284,7 +298,7 @@ export function TailorPanel({
                 <strong>{meta.role}</strong>
                 <span>{meta.company}</span>
               </div>
-              <span className="tailor-local-pill">Demo role</span>
+              <span className="tailor-local-pill">Role preview</span>
             </div>
 
             <button
@@ -508,10 +522,10 @@ export function TailorPanel({
                   type="button"
                   className="app-btn app-btn--primary"
                   onClick={applySelected}
-                  disabled={selected.size === 0}
+                  disabled={selected.size === 0 || applying}
                 >
                   <Check size={15} aria-hidden="true" />
-                  Apply {selected.size} selected
+                  {applying ? "Applying…" : `Apply ${selected.size} selected`}
                 </button>
                 <button type="button" className="app-btn app-btn--quiet" onClick={editJob}>
                   Start over
@@ -525,7 +539,7 @@ export function TailorPanel({
                 </button>
                 <span>
                   <Check size={12} aria-hidden="true" />
-                  Saved locally
+                  Saved to Neon
                 </span>
               </div>
             )}

@@ -10,7 +10,7 @@ import {
   Sparkles,
   Target,
 } from "lucide-react";
-import type { DemoTool } from "@/lib/demo/types";
+import type { WorkspaceTool } from "@/lib/resume/types";
 import { cn } from "@/lib/utils";
 import { STUDIO_TOOLS } from "./studio-types";
 
@@ -20,15 +20,15 @@ const icons = {
   ai: Sparkles,
   tailor: Target,
   score: ShieldCheck,
-} satisfies Record<DemoTool, typeof FileText>;
+} satisfies Record<WorkspaceTool, typeof FileText>;
 
 export function ToolRail({
   activeTool,
   onSelectTool,
   onOpenHelp,
 }: {
-  activeTool: DemoTool;
-  onSelectTool: (tool: DemoTool) => void;
+  activeTool: WorkspaceTool;
+  onSelectTool: (tool: WorkspaceTool) => void;
   onOpenHelp: () => void;
 }) {
   return (

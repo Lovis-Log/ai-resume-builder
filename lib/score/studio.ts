@@ -4,10 +4,10 @@ import {
   hasNumber,
   startsWithActionVerb,
 } from "@/lib/score/rules";
-import type { DemoResumeContent } from "./types";
-import { splitSkills } from "./format";
+import { splitSkills } from "@/lib/resume/format";
+import type { ResumeContent } from "@/lib/resume/schema";
 
-export type DemoScoreCheck = {
+export type StudioScoreCheck = {
   id: string;
   label: string;
   description: string;
@@ -16,18 +16,18 @@ export type DemoScoreCheck = {
   hint: string;
 };
 
-export type DemoScore = {
+export type StudioScore = {
   score: number;
   passed: number;
   total: number;
-  checks: DemoScoreCheck[];
+  checks: StudioScoreCheck[];
   label: string;
 };
 
-export function computeDemoScore(
-  content: DemoResumeContent,
+export function computeResumeScore(
+  content: ResumeContent,
   pageCount = 1,
-): DemoScore {
+): StudioScore {
   const experience = content.experience.filter(
     (entry) => entry.title.trim() && entry.company.trim(),
   );
@@ -70,7 +70,7 @@ export function computeDemoScore(
   const noPronouns = !FIRST_PERSON_PRONOUNS.test(searchableText);
   const summaryReady = content.summary.trim().length >= 40;
 
-  const checks: DemoScoreCheck[] = [
+  const checks: StudioScoreCheck[] = [
     {
       id: "contact",
       label: "Contact details are complete",
