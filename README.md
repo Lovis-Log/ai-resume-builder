@@ -2,7 +2,9 @@
 
 An AI-assisted resume studio for early-career candidates. Build a fixed
 six-section resume, see a ten-check score, tailor it to a job description, and
-export an A4, ATS-safe page.
+export a clean A4, ATS-safe page.
+
+**Live app:** [ai-resume-builder-lac-three.vercel.app](https://ai-resume-builder-lac-three.vercel.app)
 
 The app is backed by Neon for data and identity:
 
@@ -20,6 +22,41 @@ AI actions run in Next.js server actions and call DeepSeek directly.
 - DeepSeek `deepseek-flash` (optional; deterministic fallback without a key)
 - `@react-pdf/renderer` for the legacy server PDF path
 - Vercel
+
+## Design system
+
+Lume uses a shared **Blue & Lavender Soft Minimalism** visual system. The public
+marketing page keeps its cinematic sky, while the sign-in and internal product
+pages use the same calm, light canvas and restrained blue/indigo accents.
+
+- The landing hero and sign-in story panel use four independently drifting cloud
+  layers over a stationary sky photograph. Motion is CSS transform-only, avoids
+  text movement, and respects `prefers-reduced-motion`.
+- Workspace, Templates, Billing, and Settings share the tokens, background,
+  navigation, card surfaces, and typography defined in
+  [`app/app-shell.css`](./app/app-shell.css).
+- The resume editor keeps its own scoped type scale in
+  [`app/editor-legibility.css`](./app/editor-legibility.css), including larger
+  form labels, panel copy, AI and score panels, plus a 50–150% live-preview
+  zoom.
+- The exported resume document has its own A4/print typography. Editor UI
+  changes never alter the PDF layout, pagination, or template typography.
+
+Core design tokens:
+
+| Token | Value |
+| --- | --- |
+| Canvas | `#F7F9FD` |
+| Primary text | `#1B2843` |
+| Secondary text | `#71809A` |
+| Primary blue | `#4965F5` |
+| Lavender accent | `#9583FF` |
+| Border | `#E5EAF3` |
+| Dark feature card | `#252F59` |
+
+The interactive design reference used for the refresh is in
+[`design/lume-ui-demo/`](./design/lume-ui-demo/). Optimized production sky
+assets live in [`public/marketing/sky/`](./public/marketing/sky/).
 
 ## Quick start
 
@@ -115,14 +152,35 @@ recommended target) is connected. See `lib/billing/`.
 
 | Route | Purpose |
 | --- | --- |
-| `/` | Public marketing page |
-| `/login` | Google sign-in |
+| `/` | Public marketing page with animated hero sky |
+| `/login` | Google sign-in with animated sky story panel |
 | `/dashboard` | Workspace and resume library |
 | `/resume/[id]` | Editor, live preview, AI, tailoring, and score |
 | `/templates` | Template gallery and new-resume entry |
 | `/billing` | Plan, usage, and invoices |
 | `/settings` | Profile, export, sign-out, and account deletion |
 | `/privacy`, `/terms` | Public legal pages |
+
+## Deployment
+
+Production runs on Vercel from the `main` branch at
+[ai-resume-builder-lac-three.vercel.app](https://ai-resume-builder-lac-three.vercel.app).
+Vercel creates preview deployments for pushed branches and pull requests.
+
+Configure the same environment variables in the Vercel project that are
+required locally (see [`.env.example`](./.env.example)):
+
+- `DATABASE_URL` and `DATABASE_URL_UNPOOLED`
+- `NEON_AUTH_BASE_URL`, `NEON_AUTH_JWKS_URL`, and `NEON_AUTH_COOKIE_SECRET`
+- `NEON_REALTIME_URL`, `NEON_REALTIME_SECRET`, and
+  `NEXT_PUBLIC_NEON_REALTIME_URL`
+- `NEXT_PUBLIC_APP_URL` (the production origin)
+- `DEEPSEEK_API_KEY` to enable live AI (plus optional `DEEPSEEK_MODEL` and
+  `DEEPSEEK_BASE_URL`)
+- `BILLING_PROVIDER` (set to `manual` until a billing provider is connected)
+
+Run `npm run db:migrate` against the production branch before deploying
+database-dependent changes.
 
 ## Verification
 
@@ -142,3 +200,6 @@ The production build is verified with the live Neon branch. See
   part of the current app and are kept for reference.
 - The browser print dialog is the PDF export path in the studio. The
   `@react-pdf/renderer` document remains available for a future server export.
+- The design reference in `design/lume-ui-demo/` is documentation, not a runtime
+  dependency. The production assets are the optimized WebP files in
+  `public/marketing/sky/`.
