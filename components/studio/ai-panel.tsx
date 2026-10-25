@@ -298,7 +298,7 @@ export function AiPanel({
               <WandSparkles size={15} />
             </span>
             <p>
-              <strong>DeepSeek through a Neon Function.</strong>
+              <strong>DeepSeek, called directly from Lume.</strong>
               Only the text needed for this action leaves your workspace.
             </p>
           </div>
@@ -580,8 +580,8 @@ export function AiPanel({
         <div className="ai-panel-footer">
           <WandSparkles size={14} aria-hidden="true" />
           <span>
-            Requests run inside a Neon Function after consent. Failed calls do
-            not consume an action.
+            Requests go directly to DeepSeek after consent. Failed calls do not
+            consume an action.
           </span>
         </div>
       </div>

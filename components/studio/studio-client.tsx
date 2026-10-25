@@ -389,8 +389,8 @@ export function StudioClient() {
             <div>
               <h3>AI is opt-in</h3>
               <p>
-                Drafts and tailoring call DeepSeek through a Neon Function after
-                you accept the AI notice.
+                Drafts and tailoring call DeepSeek directly after you accept the
+                AI notice.
               </p>
             </div>
           </div>

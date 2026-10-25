@@ -8,6 +8,10 @@ export const metadata: Metadata = {
   description: "Shape and export your Lume resume.",
 };
 
+// AI actions call DeepSeek directly from this route. Leave room for the
+// provider deadline plus the usage bookkeeping that follows it.
+export const maxDuration = 60;
+
 export default function ResumePage() {
   return (
     <Suspense fallback={<StudioShellFallback />}>

@@ -1,3 +1,5 @@
+// DeepSeek Flash peak rates, in USD per 1M tokens. Off-peak is half price;
+// using the peak rate keeps stored cost estimates conservative.
 const PRICE_PER_MILLION = {
   input: 0.3,
   output: 1.2,

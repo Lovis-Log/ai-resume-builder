@@ -6,21 +6,28 @@ import { estimateCost } from "./usage";
 
 const DEFAULT_MODEL = process.env.DEEPSEEK_MODEL ?? "deepseek-flash";
 const BASE_URL = process.env.DEEPSEEK_BASE_URL ?? "https://api.deepseek.com";
+const DEFAULT_TIMEOUT_MS = 40_000;
 
 let client: OpenAI | null = null;
+let clientKey: string | null = null;
+
+export function isAiConfigured(): boolean {
+  return Boolean(process.env.DEEPSEEK_API_KEY);
+}
 
 function getClient(): OpenAI {
   const apiKey = process.env.DEEPSEEK_API_KEY;
   if (!apiKey) {
     throw new ProviderError("AI is not configured. Add DEEPSEEK_API_KEY.");
   }
-  if (!client) {
+  if (!client || clientKey !== apiKey) {
     client = new OpenAI({
       apiKey,
       baseURL: BASE_URL,
-      timeout: 60_000,
+      timeout: DEFAULT_TIMEOUT_MS,
       maxRetries: 0,
     });
+    clientKey = apiKey;
   }
   return client;
 }
@@ -44,111 +51,71 @@ export type GenerateJsonInput = {
   timeoutMs?: number;
 };
 
+/**
+ * Calls DeepSeek's OpenAI-compatible Chat Completions endpoint directly.
+ *
+ * DeepSeek enables JSON output through `response_format: { type: "json_object" }`
+ * and asks for the word "json" plus an example of the shape in the prompt. The
+ * prompts in ./prompts.ts do both; the schema is appended here as extra guidance.
+ */
 export async function generateJson<T>(
   input: GenerateJsonInput,
 ): Promise<AiJsonResult<T>> {
   const openai = getClient();
   const model = DEFAULT_MODEL;
-  const timeoutMs = input.timeoutMs ?? 60_000;
+  const timeoutMs = input.timeoutMs ?? DEFAULT_TIMEOUT_MS;
 
+  let response: any;
   try {
-    const response: any = await openai.responses.create({
+    response = await openai.chat.completions.create({
       model,
-      input: [
+      messages: [
         { role: "system", content: input.system },
-        { role: "user", content: input.user },
-      ],
-      text: {
-        format: {
-          type: "json_schema",
-          name: "result",
-          schema: input.jsonSchema,
+        {
+          role: "user",
+          content: `${input.user}
+
+Return only valid JSON matching this JSON Schema:
+${JSON.stringify(input.jsonSchema)}`,
         },
-      },
-      max_output_tokens: input.maxTokens,
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: input.maxTokens,
       temperature: input.temperature,
-      extra_body: { thinking: { type: "disabled" } },
+      // DeepSeek turns thinking on by default. Resume drafting is faster and
+      // cheaper without it. Unlike the Python SDK, the JS SDK sends unknown
+      // top-level fields as-is, so this belongs in the body, not extra_body.
+      thinking: { type: "disabled" },
       timeout: timeoutMs,
     } as any);
-
-    const text = extractResponsesText(response);
-    const usage = extractResponsesUsage(response);
-    return {
-      data: parseJson<T>(text),
-      model,
-      inputTokens: usage.inputTokens,
-      outputTokens: usage.outputTokens,
-      costUsd: estimateCost(model, usage.inputTokens, usage.outputTokens),
-    };
-  } catch {
-    try {
-      const response: any = await openai.chat.completions.create({
-        model,
-        messages: [
-          { role: "system", content: input.system },
-          {
-            role: "user",
-            content: `${input.user}\n\nReturn only valid JSON matching this schema:\n${JSON.stringify(input.jsonSchema)}`,
-          },
-        ],
-        response_format: { type: "json_object" },
-        max_tokens: input.maxTokens,
-        temperature: input.temperature,
-        extra_body: { thinking: { type: "disabled" } },
-        timeout: timeoutMs,
-      } as any);
-
-      const text = response.choices?.[0]?.message?.content ?? "";
-      const usage = response.usage ?? {};
-      const inputTokens = Number(usage.prompt_tokens ?? usage.input_tokens ?? 0);
-      const outputTokens = Number(
-        usage.completion_tokens ?? usage.output_tokens ?? 0,
-      );
-
-      return {
-        data: parseJson<T>(text),
-        model,
-        inputTokens,
-        outputTokens,
-        costUsd: estimateCost(model, inputTokens, outputTokens),
-      };
-    } catch (fallbackError) {
-      const message =
-        fallbackError instanceof Error ? fallbackError.message : "AI request failed";
-      throw new ProviderError(
-        process.env.NODE_ENV === "production"
-          ? "The AI provider is unavailable. Try again."
-          : `AI request failed: ${message}`,
-      );
-    }
-  }
-}
-
-function extractResponsesText(response: any): string {
-  if (typeof response?.output_text === "string" && response.output_text.length > 0) {
-    return response.output_text;
+  } catch (error) {
+    throw new ProviderError(providerErrorMessage(error));
   }
 
-  const output = Array.isArray(response?.output) ? response.output : [];
-  const chunks: string[] = [];
-  for (const item of output) {
-    const content = Array.isArray(item?.content) ? item.content : [];
-    for (const part of content) {
-      if (typeof part?.text === "string") chunks.push(part.text);
-    }
+  const text: string = response.choices?.[0]?.message?.content ?? "";
+  if (!text.trim()) {
+    throw new ProviderError("The AI returned an empty response. Try again.");
   }
-  return chunks.join("");
-}
 
-function extractResponsesUsage(response: any): {
-  inputTokens: number;
-  outputTokens: number;
-} {
-  const usage = response?.usage ?? {};
+  const usage = response.usage ?? {};
+  const inputTokens = Number(usage.prompt_tokens ?? 0);
+  const outputTokens = Number(usage.completion_tokens ?? 0);
+
   return {
-    inputTokens: Number(usage.input_tokens ?? usage.prompt_tokens ?? 0),
-    outputTokens: Number(usage.output_tokens ?? usage.completion_tokens ?? 0),
+    data: parseJson<T>(text),
+    model,
+    inputTokens,
+    outputTokens,
+    costUsd: estimateCost(model, inputTokens, outputTokens),
   };
+}
+
+function providerErrorMessage(error: unknown): string {
+  if (process.env.NODE_ENV === "production") {
+    return "The AI provider is unavailable. Try again.";
+  }
+  const message = error instanceof Error ? error.message : "unknown error";
+  return `AI request failed: ${message}`;
 }
 
 export function parseJson<T>(raw: string): T {

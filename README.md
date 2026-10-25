@@ -4,17 +4,18 @@ An AI-assisted resume studio for early-career candidates. Build a fixed
 six-section resume, see a ten-check score, tailor it to a job description, and
 export an A4, ATS-safe page.
 
-The app is backed by Neon end to end:
+The app is backed by Neon for data and identity:
 
 - **Postgres** stores profiles, resumes, tailoring runs, usage, and subscriptions.
 - **Neon Auth** (Managed Better Auth) provides Google sign-in and sessions.
-- **Neon Functions** runs the AI endpoint that talks to DeepSeek.
 - **Neon Realtime** streams resume changes to every open tab.
+
+AI actions run in Next.js server actions and call DeepSeek directly.
 
 ## Stack
 
 - Next.js 16.4 App Router, React 19, Tailwind CSS 4
-- Neon Postgres + Neon Auth + Neon Functions + Neon Realtime
+- Neon Postgres + Neon Auth + Neon Realtime
 - Drizzle ORM + `pg`
 - DeepSeek `deepseek-flash` (optional; deterministic fallback without a key)
 - `@react-pdf/renderer` for the legacy server PDF path
@@ -32,9 +33,10 @@ npm run db:migrate
 npm run dev
 ```
 
-`neon deploy` provisions the services declared in [neon.ts](./neon.ts), deploys
-the AI function, and writes the branch environment variables into `.env.local`.
-Generate the cookie secret once:
+`neon deploy` provisions the services declared in [neon.ts](./neon.ts) and
+writes the branch environment variables into `.env.local`. Add
+`DEEPSEEK_API_KEY` to `.env.local` to enable live AI; without it, AI actions use
+deterministic local heuristics. Generate the cookie secret once:
 
 ```bash
 node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
@@ -69,24 +71,27 @@ npm run db:studio
 Migrations are in [`drizzle/`](./drizzle/). The application uses the pooled
 `DATABASE_URL` through a `pg` pool; migrations use the direct URL.
 
-### AI Function
+### AI actions
 
-The AI endpoint lives in [`functions/api.ts`](./functions/api.ts) and is declared
-in `neon.ts` as the `ai` function. It verifies Neon Auth JWTs against the
-injected JWKS, then calls DeepSeek for summaries, bullet rewrites, keyword
-extraction, and tailoring. If `DEEPSEEK_API_KEY` is unset, it returns a
-deterministic heuristic response so the full review flow still works.
-
-```bash
-neon dev          # local function runtime at http://localhost:8787
-neon deploy --env .env.local
-```
-
-To run the app against the local function during development:
+AI requests are handled by the server actions in
+[`app/actions/ai.ts`](./app/actions/ai.ts). They call
+[`lib/ai/agents.ts`](./lib/ai/agents.ts), which sends prompts straight to
+DeepSeek's OpenAI-compatible Chat Completions endpoint using
+`DEEPSEEK_API_KEY`. There is no Neon Function or gateway in the path. Responses
+use DeepSeek's JSON output mode and are validated with zod before they reach the
+studio.
 
 ```bash
-NEON_FUNCTION_AI_BASE_URL=http://127.0.0.1:8787 npm run dev
+# .env.local
+DEEPSEEK_API_KEY=sk-...
+DEEPSEEK_MODEL=deepseek-flash
+DEEPSEEK_BASE_URL=https://api.deepseek.com
 ```
+
+If the key is unset or the provider call fails, each action falls back to the
+deterministic heuristics in [`lib/ai/heuristics.ts`](./lib/ai/heuristics.ts), so
+the review flow still works. The resume route sets `maxDuration = 60` to cover
+the provider deadline and usage bookkeeping.
 
 ### Realtime
 

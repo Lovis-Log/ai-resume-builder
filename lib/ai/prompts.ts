@@ -1,5 +1,6 @@
 import { formatDateRange } from "@/lib/resume/format";
 import type { ResumeContent } from "@/lib/resume/schema";
+import { AI_SUMMARY_STYLES, type AiSummaryStyle } from "./styles";
 
 export const SYSTEM_PROMPT = `You are an expert resume writer for early-career candidates and new graduates.
 Rules:
@@ -27,10 +28,15 @@ function experienceContext(content: ResumeContent): string {
 export function buildSummaryPrompt(input: {
   targetRole: string;
   content: ResumeContent;
+  style?: AiSummaryStyle;
 }): string {
+  const style = input.style
+    ? AI_SUMMARY_STYLES.find((item) => item.id === input.style)?.description
+    : undefined;
+
   return `Write a resume summary for this candidate.
 
-Target role: ${input.targetRole || "Early-career professional"}
+Target role: ${input.targetRole || "Early-career professional"}${style ? `\nStyle: ${style}` : ""}
 
 Experience:
 ${experienceContext(input.content) || "(none provided)"}
@@ -45,7 +51,7 @@ ${input.content.education
 
 Skills: ${input.content.skills || "(none provided)"}
 
-Return JSON: { "summary": string }
+Return JSON: { "summary": "<2-3 sentence summary>" }
 The summary must be 2-3 sentences, roughly 40-60 words, specific to the candidate, and must not invent facts.`;
 }
 
@@ -61,7 +67,7 @@ Company: ${input.company || "(not provided)"}
 Notes from the candidate:
 ${input.notes || "(none provided)"}
 
-Return JSON: { "bullets": string[] }
+Return JSON: { "bullets": ["<bullet>", "<bullet>", "<bullet>"] }
 Each bullet must start with a strong action verb, be one sentence, and use only facts from the notes. Do not invent metrics.`;
 }
 
@@ -76,7 +82,7 @@ Original: ${input.bullet}
 ${input.jobTitle ? `Role: ${input.jobTitle}` : ""}
 ${input.company ? `Company: ${input.company}` : ""}
 
-Return JSON: { "bullet": string }
+Return JSON: { "bullet": "<rewritten bullet>" }
 Keep the same facts. Do not add metrics, tools, or achievements that were not in the original. Make it more specific, concise, and action-oriented.`;
 }
 
@@ -88,7 +94,7 @@ Job description:
 ${jobDescription}
 """
 
-Return JSON: { "keywords": [{ "term": string, "importance": "high" | "medium" | "low", "evidenceQuote": string }] }
+Return JSON: { "keywords": [{ "term": "Figma", "importance": "high", "evidenceQuote": "<exact quote from the job description>" }] }
 - Rank by importance to the role.
 - "evidenceQuote" must be an exact substring of the job description.
 - Prefer skills, tools, and domain terms over generic words.
@@ -142,8 +148,8 @@ ${JSON.stringify(bulletCandidates, null, 2)}
 
 Return JSON:
 {
-  "summary": { "suggested": string, "sourceQuotes": string[] },
-  "bullets": [{ "id": string, "suggested": string, "sourceQuotes": string[] }]
+  "summary": { "suggested": "<rewritten summary>", "sourceQuotes": ["<exact quote from the resume>"] },
+  "bullets": [{ "id": "<experienceId:index>", "suggested": "<rewritten bullet>", "sourceQuotes": ["<exact quote from the resume>"] }]
 }
 
 Rules:

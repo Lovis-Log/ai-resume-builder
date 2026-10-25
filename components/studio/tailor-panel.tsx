@@ -223,7 +223,7 @@ export function TailorPanel({
           <p>
             {profile.hasAiConsent ? (
               <>
-                <strong>{provider === "deepseek" ? "DeepSeek" : "AI fallback"} through a Neon Function.</strong>{" "}
+                <strong>{provider === "deepseek" ? "DeepSeek" : "AI fallback"} for this analysis.</strong>{" "}
                 Keyword matching and rewrites use the job description and your
                 resume.
               </>

@@ -10,31 +10,13 @@ const allowedOrigins = Array.from(
   ),
 );
 
-const aiEnv: Record<string, string> = {};
-if (process.env.DEEPSEEK_API_KEY) {
-  aiEnv.DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
-}
-if (process.env.DEEPSEEK_MODEL) {
-  aiEnv.DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL;
-}
-if (process.env.DEEPSEEK_BASE_URL) {
-  aiEnv.DEEPSEEK_BASE_URL = process.env.DEEPSEEK_BASE_URL;
-}
-
 export default defineConfig({
-  // Declared services: Postgres is implicit; Auth, Functions, and Realtime are
-  // enabled on every branch created from this config.
+  // Declared services: Postgres is implicit; Auth and Realtime are enabled on
+  // every branch created from this config. AI calls go straight to DeepSeek.
   preview: {
     realtime: { allowedOrigins },
   },
   auth: true,
-  functions: {
-    ai: {
-      name: "Lume AI",
-      source: "./functions/api.ts",
-      ...(Object.keys(aiEnv).length > 0 ? { env: aiEnv } : {}),
-    },
-  },
   // Branch policy: per-branch tuning
   branch: (branch) => {
     if (branch.isDefault) {

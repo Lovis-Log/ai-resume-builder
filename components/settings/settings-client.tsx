@@ -244,8 +244,8 @@ export function SettingsClient() {
                 <p>
                   Resume content is stored in your Neon Postgres branch and
                   served through Neon Auth. When you use an AI action, the
-                  relevant text is sent to DeepSeek through a Neon Function.
-                  Nothing is sent until you accept the AI notice.
+                  relevant text is sent directly to DeepSeek. Nothing is sent
+                  until you accept the AI notice.
                 </p>
                 <Link href="/privacy" className="app-text-button">
                   Read the public privacy page
@@ -255,7 +255,7 @@ export function SettingsClient() {
             </section>
 
             <p className="settings-footnote">
-              Lume · Neon Postgres, Auth, Functions, Realtime · A4 PDF
+              Lume · Neon Postgres, Auth, Realtime · A4 PDF
             </p>
           </div>
         </div>

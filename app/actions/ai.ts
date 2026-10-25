@@ -2,7 +2,13 @@
 
 import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
-import { callAiFunction } from "@/lib/ai/function";
+import {
+  analyzeKeywordsAgent,
+  draftTailoringAgent,
+  generateSummaryAgent,
+  improveBulletAgent,
+  type AgentMeta,
+} from "@/lib/ai/agents";
 import { prepareAiRequest } from "@/lib/ai/run";
 import { requireUser } from "@/lib/auth/dal";
 import { getOrCreateProfile } from "@/lib/auth/profile";
@@ -65,31 +71,9 @@ const applyInputSchema = z.object({
   selectedIds: z.array(z.string().min(1).max(200)).max(10),
 });
 
-type FunctionUsage = {
-  model?: string;
-  provider?: string;
-  inputTokens?: number;
-  outputTokens?: number;
-  costUsd?: number;
-};
-
-type SummaryResponse = FunctionUsage & { summary: string };
-type BulletResponse = FunctionUsage & { bullet: string };
-type KeywordsResponse = FunctionUsage & {
-  keywords: Array<{
-    term: string;
-    importance: "high" | "medium" | "low";
-    evidenceQuote?: string;
-  }>;
-};
-type TailorResponse = FunctionUsage & {
-  summary: { suggested: string };
-  bullets: Array<{ id: string; suggested: string }>;
-};
-
-function usagePayload(ai: FunctionUsage) {
+function usagePayload(ai: AgentMeta) {
   return {
-    model: ai.model ?? ai.provider ?? "neon-function",
+    model: ai.model,
     inputTokens: ai.inputTokens,
     outputTokens: ai.outputTokens,
     costUsd: ai.costUsd,
@@ -122,7 +106,7 @@ export async function generateSummary(input: {
   });
 
   try {
-    const ai = await callAiFunction<SummaryResponse>("/v1/summary", {
+    const ai = await generateSummaryAgent({
       targetRole: resume.targetRole || content.contact.headline,
       style: parsed.style,
       content,
@@ -130,7 +114,7 @@ export async function generateSummary(input: {
     await completeUsage(eventId, usagePayload(ai));
     return {
       summary: ai.summary,
-      provider: ai.provider ?? "deepseek",
+      provider: ai.provider,
       usage: await remainingUsage(user.id),
     };
   } catch (error) {
@@ -166,7 +150,7 @@ export async function improveBullet(input: {
   });
 
   try {
-    const ai = await callAiFunction<BulletResponse>("/v1/bullet", {
+    const ai = await improveBulletAgent({
       bullet,
       jobTitle: entry.title,
       company: entry.company,
@@ -174,7 +158,7 @@ export async function improveBullet(input: {
     await completeUsage(eventId, usagePayload(ai));
     return {
       bullet: ai.bullet,
-      provider: ai.provider ?? "deepseek",
+      provider: ai.provider,
       usage: await remainingUsage(user.id),
     };
   } catch (error) {
@@ -211,7 +195,7 @@ export async function analyzeJob(input: {
   });
 
   try {
-    const ai = await callAiFunction<KeywordsResponse>("/v1/keywords", {
+    const ai = await analyzeKeywordsAgent({
       jobDescription: parsed.jobDescription,
     });
 
@@ -253,7 +237,7 @@ export async function analyzeJob(input: {
       found,
       missing: missingKeywords.length,
       matchPercent: Math.round((found / Math.max(keywords.length, 1)) * 100),
-      provider: ai.provider ?? "deepseek",
+      provider: ai.provider,
       usage: await remainingUsage(user.id),
     };
   } catch (error) {
@@ -298,7 +282,7 @@ export async function draftTailoring(input: {
   });
 
   try {
-    const ai = await callAiFunction<TailorResponse>("/v1/tailor", {
+    const ai = await draftTailoringAgent({
       content,
       jobDescription: run.jobDescription,
       keywords,
@@ -371,7 +355,7 @@ export async function draftTailoring(input: {
 
     return {
       suggestions: suggestionRows,
-      provider: ai.provider ?? "deepseek",
+      provider: ai.provider,
       usage: await remainingUsage(user.id),
     };
   } catch (error) {
