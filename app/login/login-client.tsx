@@ -5,11 +5,11 @@ import Link from "next/link";
 import { ArrowRight, Loader2, ShieldCheck } from "lucide-react";
 import { authClient } from "@/lib/auth/client";
 import { LumeLogo } from "@/components/brand/logo";
-import { Button } from "@/components/ui/button";
+import { LumeSky } from "@/components/marketing/lume-sky";
 
 function GoogleMark() {
   return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
       <path
         fill="#4285F4"
         d="M21.35 12.22c0-.73-.07-1.43-.2-2.1H12v3.98h5.24a4.48 4.48 0 0 1-1.94 2.94v2.44h3.14c1.84-1.69 2.91-4.18 2.91-7.26Z"
@@ -48,82 +48,86 @@ export function LoginClient() {
   }
 
   return (
-    <main className="grid min-h-screen lg:grid-cols-[1.1fr_0.9fr]">
-      <section className="flex flex-col justify-between bg-[var(--accent)] px-8 py-10 text-white lg:px-16 lg:py-14">
-        <Link href="/" aria-label="Lume home">
-          <LumeLogo tone="white" id="login" />
-        </Link>
-        <div className="max-w-2xl py-16">
-          <p className="text-sm font-medium uppercase tracking-[0.2em] text-teal-100">
-            Built for new grads
-          </p>
-          <h1 className="mt-4 text-4xl font-semibold leading-tight tracking-tight lg:text-5xl">
-            Built to be read.
-            <br />
-            <span className="text-teal-100/80">Written to be remembered.</span>
-          </h1>
-          <p className="mt-5 max-w-lg text-lg leading-relaxed text-teal-50">
-            Start with your experience. Add AI writing when you need it, tailor
-            to a job description, check the score, and download a clean PDF.
-          </p>
-          <ul className="mt-8 space-y-3 text-sm text-teal-50">
-            <li className="flex items-center gap-3">
-              <ShieldCheck className="h-4 w-4" />
-              Single-column, ATS-safe template
-            </li>
-            <li className="flex items-center gap-3">
-              <ShieldCheck className="h-4 w-4" />
-              Free resume score, no AI required
-            </li>
-            <li className="flex items-center gap-3">
-              <ShieldCheck className="h-4 w-4" />
-              No credit card to start
-            </li>
-          </ul>
+    <main className="login-page">
+      <section className="login-story" aria-label="About Lume">
+        <LumeSky variant="login" />
+        <div className="login-story-inner">
+          <Link className="login-brand" href="/" aria-label="Lume home">
+            <LumeLogo tone="white" id="login" />
+          </Link>
+
+          <div className="login-story-copy">
+            <p className="login-eyebrow">Built for new grads</p>
+            <h1>
+              Built to be read.
+              <span>Written to be remembered.</span>
+            </h1>
+            <p className="login-lede">
+              Start with your experience. Add AI writing when you need it,
+              tailor to a job description, check the score, and download a
+              clean PDF.
+            </p>
+            <ul className="login-perks">
+              <li>
+                <ShieldCheck aria-hidden="true" />
+                Single-column, ATS-safe template
+              </li>
+              <li>
+                <ShieldCheck aria-hidden="true" />
+                Free resume score, no AI required
+              </li>
+              <li>
+                <ShieldCheck aria-hidden="true" />
+                No credit card to start
+              </li>
+            </ul>
+          </div>
+
+          <p className="login-story-foot">Early access · English · A4 PDF</p>
         </div>
-        <p className="text-xs text-teal-100/80">
-          Early access · English · A4 PDF
-        </p>
       </section>
 
-      <section className="flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-sm">
-          <h2 className="text-2xl font-semibold text-stone-900">Sign in</h2>
-          <p className="mt-2 text-sm text-stone-500">
-            Use your Google account to continue. One account, one resume library.
+      <section className="login-panel" aria-label="Sign in">
+        <div className="login-card">
+          <h2>Sign in</h2>
+          <p className="login-card-lede">
+            Use your Google account to continue. One account, one resume
+            library.
           </p>
 
-          <Button
-            className="mt-8 w-full"
-            size="lg"
+          <button
+            type="button"
+            className="login-google"
             onClick={signIn}
             disabled={pending}
+            aria-busy={pending}
           >
             {pending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="login-spinner" aria-hidden="true" />
             ) : (
-              <GoogleMark />
+              <span className="login-google-icon">
+                <GoogleMark />
+              </span>
             )}
-            Continue with Google
-            {!pending ? <ArrowRight className="ml-auto h-4 w-4" /> : null}
-          </Button>
+            <span className="login-google-label">
+              {pending ? "Connecting to Google…" : "Continue with Google"}
+            </span>
+            {pending ? null : (
+              <ArrowRight className="login-google-arrow" aria-hidden="true" />
+            )}
+          </button>
 
           {error ? (
-            <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+            <p className="login-error" role="alert">
               {error}
             </p>
           ) : null}
 
-          <p className="mt-6 text-xs leading-relaxed text-stone-500">
+          <p className="login-legal">
             By continuing, you agree to our{" "}
-            <Link href="/terms" className="underline underline-offset-2">
-              Terms
-            </Link>{" "}
-            and{" "}
-            <Link href="/privacy" className="underline underline-offset-2">
-              Privacy Policy
-            </Link>
-            . AI features send resume text to DeepSeek only after you opt in.
+            <Link href="/terms">Terms</Link> and{" "}
+            <Link href="/privacy">Privacy Policy</Link>. AI features send resume
+            text to DeepSeek only after you opt in.
           </p>
         </div>
       </section>

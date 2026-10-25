@@ -15,6 +15,10 @@ import type { StudioSection } from "./studio-types";
 const A4_HEIGHT = 1123;
 const A4_WIDTH = 794;
 
+export const MIN_ZOOM = 0.5;
+export const MAX_ZOOM = 1.5;
+export const DEFAULT_ZOOM = 0.72;
+
 export function PreviewPanel({
   resume,
   pageCount,
@@ -52,7 +56,7 @@ export function PreviewPanel({
 
   function changeZoom(delta: number) {
     const next = Math.round((zoom + delta) * 100) / 100;
-    onZoomChange(Math.min(1.1, Math.max(0.5, next)));
+    onZoomChange(Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, next)));
   }
 
   return (
@@ -74,14 +78,14 @@ export function PreviewPanel({
               type="button"
               onClick={() => changeZoom(-0.05)}
               aria-label="Zoom out"
-              disabled={zoom <= 0.5}
+              disabled={zoom <= MIN_ZOOM}
             >
               <Minus size={13} aria-hidden="true" />
             </button>
             <button
               type="button"
               className="preview-zoom-value"
-              onClick={() => onZoomChange(0.72)}
+              onClick={() => onZoomChange(DEFAULT_ZOOM)}
               title="Reset zoom"
             >
               {Math.round(zoom * 100)}%
@@ -90,7 +94,7 @@ export function PreviewPanel({
               type="button"
               onClick={() => changeZoom(0.05)}
               aria-label="Zoom in"
-              disabled={zoom >= 1.1}
+              disabled={zoom >= MAX_ZOOM}
             >
               <Plus size={13} aria-hidden="true" />
             </button>

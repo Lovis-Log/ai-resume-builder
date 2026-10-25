@@ -298,7 +298,7 @@ export function AiPanel({
               <WandSparkles size={15} />
             </span>
             <p>
-              <strong>DeepSeek, called directly from Lume.</strong>
+              <strong>DeepSeek, called directly from Lume.</strong>{" "}
               Only the text needed for this action leaves your workspace.
             </p>
           </div>
@@ -308,7 +308,7 @@ export function AiPanel({
               <ShieldCheck size={15} />
             </span>
             <p>
-              <strong>AI is opt-in.</strong>
+              <strong>AI is opt-in.</strong>{" "}
               Resume text and job descriptions are sent to DeepSeek for this
               action.{" "}
               <button

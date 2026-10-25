@@ -6,6 +6,9 @@ import { requireUserForPage } from "@/lib/auth/dal";
 import { sealResumesQuery } from "@/lib/realtime/resumes";
 import { getWorkspaceSnapshot } from "@/lib/workspace";
 import "@/app/studio.css";
+import "@/app/dashboard.css";
+import "@/app/editor-legibility.css";
+import "@/app/app-shell.css";
 
 export const metadata = {
   robots: { index: false, follow: false },

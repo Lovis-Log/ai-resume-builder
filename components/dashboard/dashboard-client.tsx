@@ -16,6 +16,7 @@ import {
   Check,
   Copy,
   FileText,
+  Gauge,
   LayoutTemplate,
   MoreHorizontal,
   Pencil,
@@ -322,24 +323,39 @@ export function DashboardClient() {
 
         <section className="workspace-metrics" aria-label="Workspace overview">
           <div className="workspace-metric">
-            <span className="workspace-metric-label">Resumes in motion</span>
-            <strong>{String(resumes.length).padStart(2, "0")}</strong>
-          </div>
-          <div className="workspace-metric workspace-metric--score">
-            <span className="workspace-metric-label">Average score</span>
-            <strong>
-              {averageScore}
-              <small>/100</small>
-            </strong>
+            <span className="workspace-metric-icon" aria-hidden="true">
+              <FileText />
+            </span>
+            <div className="workspace-metric-body">
+              <span className="workspace-metric-label">Resumes in motion</span>
+              <strong>{String(resumes.length).padStart(2, "0")}</strong>
+            </div>
           </div>
           <div className="workspace-metric">
-            <span className="workspace-metric-label">AI actions left</span>
-            <strong>
-              {actionsLeft}
-              <small>of {profile.aiIncluded}</small>
-            </strong>
+            <span className="workspace-metric-icon" aria-hidden="true">
+              <Gauge />
+            </span>
+            <div className="workspace-metric-body">
+              <span className="workspace-metric-label">Average score</span>
+              <strong>
+                {averageScore}
+                <small>/100</small>
+              </strong>
+            </div>
           </div>
-          <div className="workspace-status">
+          <div className="workspace-metric">
+            <span className="workspace-metric-icon" aria-hidden="true">
+              <Sparkles />
+            </span>
+            <div className="workspace-metric-body">
+              <span className="workspace-metric-label">AI actions left</span>
+              <strong>
+                {actionsLeft}
+                <small>of {profile.aiIncluded}</small>
+              </strong>
+            </div>
+          </div>
+          <div className="workspace-status" role="status">
             <span className="workspace-status-dot" aria-hidden="true" />
             <span>
               {liveStatus === "live" || liveStatus === "polling"
@@ -535,7 +551,7 @@ export function DashboardClient() {
                     <h2>{bestResume.targetRole}</h2>
                     <p>{bestResume.title}</p>
                   </div>
-                  <ScoreRing score={leadScore.score} size={62} strokeWidth={5} />
+                  <ScoreRing score={leadScore.score} size={70} strokeWidth={5} />
                 </div>
                 <div className="readiness-bar" aria-hidden="true">
                   <span style={{ width: `${leadScore.score}%` }} />

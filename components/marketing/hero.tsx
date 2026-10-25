@@ -1,15 +1,13 @@
 import Link from "next/link";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { EditorMockup } from "@/components/marketing/editor-mockup";
+import { HeroClouds } from "@/components/marketing/hero-clouds";
 import { MARKETING_SCORE } from "@/lib/marketing/demo";
 
 export function Hero() {
   return (
     <section className="hero" id="top">
-      <div className="bluehour-cloud cloud-left" aria-hidden="true" />
-      <div className="bluehour-cloud cloud-right" aria-hidden="true" />
-      <div className="bluehour-cloud cloud-left-bottom" aria-hidden="true" />
-      <div className="bluehour-cloud cloud-right-bottom" aria-hidden="true" />
+      <HeroClouds />
 
       <div className="hero-inner">
         <div className="hero-copy">

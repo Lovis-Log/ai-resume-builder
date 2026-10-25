@@ -1,0 +1,819 @@
+/* ==========================================================================
+   Resume studio legibility
+   Loaded after studio.css and scoped to .studio-shell so the dashboard, dialogs
+   and exported resume document keep their own type scales. The exported / PDF
+   resume is untouched.
+   ========================================================================== */
+
+.lume-app .studio-shell {
+  /* Interface typography tokens. The resume sheet keeps its own print scale. */
+  --editor-primary-text: #334765;
+  --editor-secondary-text: #64748b;
+  --editor-label-text: #475569;
+  --editor-muted-text: #718096;
+  --editor-section-size: 21px;
+  --editor-card-title-size: 17px;
+  --editor-body-size: 15px;
+  --editor-helper-size: 14px;
+  --editor-meta-size: 13px;
+  --editor-button-size: 16px;
+}
+
+/* ---------- Top bar ---------- */
+
+.lume-app .studio-shell .studio-breadcrumb-workspace {
+  font-size: 13px;
+}
+
+.lume-app .studio-shell .studio-title-input {
+  height: 36px;
+  font-size: 13.5px;
+}
+
+.lume-app .studio-shell .studio-save-status {
+  font-size: 12.5px;
+}
+
+.lume-app .studio-shell .app-btn {
+  height: 42px;
+  font-size: 13.5px;
+}
+
+.lume-app .studio-shell .app-btn--sm {
+  height: 36px;
+  font-size: 12.5px;
+}
+
+.lume-app .studio-shell .app-btn--lg {
+  height: 48px;
+  font-size: 14.5px;
+}
+
+.lume-app .studio-shell .studio-export-button {
+  height: 40px;
+  font-size: 13.5px;
+}
+
+/* ---------- Panel header ---------- */
+
+.lume-app .studio-shell .app-eyebrow {
+  color: var(--editor-secondary-text);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+}
+
+.lume-app .studio-shell .studio-panel-header h1 {
+  font-size: clamp(32px, 2.9vw, 38px);
+}
+
+.lume-app .studio-shell .studio-panel-description {
+  max-width: 370px;
+  color: var(--editor-secondary-text);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.lume-app .studio-shell .write-progress > span {
+  color: #7c8aa0;
+  font-size: 11.5px;
+}
+
+/* ---------- Section rail inside the form ---------- */
+
+.lume-app .studio-shell .write-sections-label {
+  color: #8b98ac;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+}
+
+.lume-app .studio-shell .write-accordion-trigger {
+  min-height: 74px;
+  gap: 12px;
+  padding: 12px 14px;
+}
+
+.lume-app .studio-shell .write-section-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.lume-app .studio-shell .write-accordion-copy strong {
+  color: #33435e;
+  font-size: 15px;
+}
+
+.lume-app .studio-shell .write-accordion-copy small {
+  color: #8492a8;
+  font-size: 12.5px;
+}
+
+.lume-app .studio-shell .write-accordion-body {
+  padding: 18px 15px 19px;
+}
+
+/* ---------- Form controls ---------- */
+
+.lume-app .studio-shell .app-field {
+  gap: 8px;
+}
+
+.lume-app .studio-shell .app-field-label {
+  color: #465875;
+  font-size: 14px;
+}
+
+.lume-app .studio-shell .app-field-hint {
+  color: #8290a5;
+  font-size: 12px;
+}
+
+.lume-app .studio-shell .app-input {
+  height: 44px;
+  border-radius: 9px;
+  padding-inline: 12px;
+  font-size: 15px;
+}
+
+.lume-app .studio-shell .app-input--lg {
+  height: 50px;
+  padding-inline: 14px;
+  font-size: 15px;
+}
+
+.lume-app .studio-shell .app-textarea {
+  min-height: 94px;
+  padding: 12px;
+  line-height: 1.6;
+}
+
+.lume-app .studio-shell .write-bullet-input {
+  min-height: 66px;
+  padding: 10px 11px;
+  font-size: 14.5px;
+  line-height: 1.58;
+}
+
+.lume-app .studio-shell .app-fieldset legend {
+  color: #465875;
+  font-size: 13px;
+}
+
+.lume-app .studio-shell .app-check-row {
+  color: #53637b;
+  font-size: 13.5px;
+}
+
+.lume-app .studio-shell .write-fields-grid {
+  gap: 15px 12px;
+}
+
+.lume-app .studio-shell .write-field-footer > span {
+  color: #8d99ac;
+  font-size: 11.5px;
+}
+
+.lume-app .studio-shell .write-ai-link {
+  font-size: 12.5px;
+}
+
+/* ---------- Entry cards and list actions ---------- */
+
+.lume-app .studio-shell .write-entry-list {
+  gap: 13px;
+}
+
+.lume-app .studio-shell .write-entry-card {
+  padding: 14px;
+}
+
+.lume-app .studio-shell .write-entry-head > span {
+  color: #7f8da3;
+  font-size: 10.5px;
+}
+
+.lume-app .studio-shell .write-bullets-head span {
+  font-size: 12px;
+}
+
+.lume-app .studio-shell .write-bullets-head small {
+  color: #8b98ac;
+  font-size: 11px;
+}
+
+.lume-app .studio-shell .write-add-line {
+  font-size: 12px;
+}
+
+.lume-app .studio-shell .write-add-entry {
+  height: 42px;
+  font-size: 12.5px;
+}
+
+.lume-app .studio-shell .write-empty-entry strong {
+  font-size: 13px;
+}
+
+.lume-app .studio-shell .write-empty-entry small {
+  font-size: 11.5px;
+}
+
+.lume-app .studio-shell .write-skill-chips > span {
+  padding: 5px 8px;
+  font-size: 11.5px;
+}
+
+.lume-app .studio-shell .write-skill-chips > small {
+  font-size: 11.5px;
+}
+
+.lume-app .studio-shell .write-field-note {
+  color: #8b98ac;
+  font-size: 11.5px;
+}
+
+.lume-app .studio-shell .write-panel-tip {
+  color: #8b98ac;
+  font-size: 11.5px;
+}
+
+.lume-app .studio-shell .write-panel-page-count {
+  font-size: 11px;
+}
+
+/* ---------- Panel actions ---------- */
+
+.lume-app .studio-shell .design-panel .app-btn,
+.lume-app .studio-shell .ai-panel .app-btn,
+.lume-app .studio-shell .score-panel .app-btn {
+  height: 44px;
+  font-size: var(--editor-button-size);
+  font-weight: 650;
+}
+
+.lume-app .studio-shell .ai-panel .app-btn--sm,
+.lume-app .studio-shell .score-panel .app-btn--sm {
+  height: 38px;
+  font-size: 14.5px;
+}
+
+/* ---------- Design panel ---------- */
+
+.lume-app .studio-shell .design-panel .studio-field-group {
+  margin-top: 27px;
+}
+
+.lume-app .studio-shell .design-panel .studio-field-group-head {
+  margin-bottom: 12px;
+}
+
+.lume-app .studio-shell .design-panel .studio-field-group-head > span {
+  color: var(--editor-primary-text);
+  font-size: var(--editor-section-size);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.lume-app .studio-shell .design-panel .studio-field-group-head > small {
+  color: var(--editor-muted-text);
+  font-size: var(--editor-helper-size);
+}
+
+.lume-app .studio-shell .design-panel .template-picker {
+  gap: 9px;
+}
+
+.lume-app .studio-shell .design-panel .template-picker-card {
+  gap: 8px;
+  padding: 6px;
+}
+
+.lume-app .studio-shell .design-panel .template-picker-card > span {
+  padding: 2px 3px 3px;
+  color: var(--editor-primary-text);
+  font-size: var(--editor-card-title-size);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.lume-app .studio-shell .design-panel .template-picker-card.is-selected {
+  border-color: #8fa3ec;
+  background: #fbfcff;
+  box-shadow: 0 0 0 2px rgba(65, 106, 245, 0.11);
+}
+
+.lume-app .studio-shell .design-panel .template-picker-card.is-selected > span {
+  color: var(--app-primary-deep);
+  font-weight: 650;
+}
+
+.lume-app .studio-shell .design-panel .design-template-note {
+  margin-top: 10px;
+  color: var(--editor-secondary-text);
+  font-size: var(--editor-helper-size);
+  line-height: 1.6;
+}
+
+.lume-app .studio-shell .design-panel .design-segmented {
+  padding: 4px;
+  border-radius: 9px;
+}
+
+.lume-app .studio-shell .design-panel .design-segmented button {
+  height: 38px;
+  border-radius: 7px;
+  color: var(--editor-secondary-text);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.lume-app .studio-shell .design-panel .design-segmented button.is-selected {
+  color: var(--editor-primary-text);
+  font-weight: 650;
+}
+
+.lume-app .studio-shell .design-panel .design-document-row {
+  height: 42px;
+  color: var(--editor-secondary-text);
+  font-size: var(--editor-body-size);
+}
+
+.lume-app .studio-shell .design-panel .design-document-row strong {
+  color: var(--editor-label-text);
+  font-size: var(--editor-body-size);
+  font-weight: 600;
+}
+
+.lume-app .studio-shell .design-panel .design-document-badge {
+  gap: 10px;
+  margin-top: 12px;
+  padding: 12px 13px;
+}
+
+.lume-app .studio-shell .design-panel .design-document-badge > span {
+  gap: 3px;
+}
+
+.lume-app .studio-shell .design-panel .design-document-badge strong {
+  color: #3f6f61;
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.lume-app .studio-shell .design-panel .design-document-badge span {
+  color: #5b746d;
+  font-size: var(--editor-helper-size);
+  line-height: 1.55;
+}
+
+.lume-app .studio-shell .design-panel .design-note-card {
+  gap: 10px;
+  margin-top: 24px;
+  padding: 14px;
+}
+
+.lume-app .studio-shell .design-panel .design-note-card p {
+  color: #5e567c;
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+
+.lume-app .studio-shell .design-panel .design-actions {
+  gap: 11px;
+  margin-top: 20px;
+}
+
+.lume-app .studio-shell .design-panel .design-actions > span {
+  gap: 5px;
+  color: var(--editor-muted-text);
+  font-size: var(--editor-helper-size);
+  line-height: 1.5;
+}
+
+/* ---------- AI writing panel ---------- */
+
+.lume-app .studio-shell .ai-panel .app-eyebrow {
+  letter-spacing: 0.06em;
+}
+
+.lume-app .studio-shell .ai-panel .ai-action-chip {
+  border-color: #e4ddf7;
+  padding: 4px 8px;
+  color: #6b58a6;
+  font-size: 12px;
+}
+
+.lume-app .studio-shell .ai-panel .ai-demo-note {
+  gap: 10px;
+  padding: 13px 14px;
+}
+
+.lume-app .studio-shell .ai-panel .ai-demo-orb {
+  width: 30px;
+  height: 30px;
+}
+
+.lume-app .studio-shell .ai-panel .ai-demo-note p {
+  color: var(--editor-secondary-text);
+  font-size: var(--editor-body-size);
+  line-height: 1.6;
+}
+
+.lume-app .studio-shell .ai-panel .ai-demo-note strong {
+  color: var(--editor-primary-text);
+  font-weight: 650;
+}
+
+.lume-app .studio-shell .ai-panel .ai-demo-note .app-text-button {
+  color: var(--app-primary);
+  font-size: 14.5px;
+}
+
+.lume-app .studio-shell .ai-panel .ai-demo-note .app-text-button:disabled {
+  cursor: progress;
+  opacity: 0.55;
+}
+
+.lume-app .studio-shell .ai-panel .ai-mode-tabs {
+  gap: 4px;
+  margin: 22px 0 18px;
+}
+
+.lume-app .studio-shell .ai-panel .ai-mode-tabs button {
+  height: 42px;
+  padding: 0 12px;
+  color: var(--editor-secondary-text);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.lume-app .studio-shell .ai-panel .ai-mode-tabs button.is-active {
+  color: #3f5bd4;
+  font-weight: 650;
+}
+
+.lume-app .studio-shell .ai-panel .ai-workspace {
+  gap: 15px;
+}
+
+.lume-app .studio-shell .ai-panel .ai-intro-block {
+  gap: 11px;
+}
+
+.lume-app .studio-shell .ai-panel .ai-intro-icon {
+  width: 34px;
+  height: 34px;
+}
+
+.lume-app .studio-shell .ai-panel .ai-intro-block h2 {
+  color: var(--editor-primary-text);
+  font-size: var(--editor-section-size);
+  font-weight: 650;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+}
+
+.lume-app .studio-shell .ai-panel .ai-intro-block p {
+  max-width: none;
+  margin-top: 4px;
+  color: var(--editor-secondary-text);
+  font-size: var(--editor-body-size);
+  line-height: 1.6;
+}
+
+.lume-app .studio-shell .ai-panel .ai-style-grid {
+  gap: 7px;
+}
+
+.lume-app .studio-shell .ai-panel .ai-style-option {
+  height: 40px;
+  border-radius: 8px;
+  color: var(--editor-secondary-text);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.lume-app .studio-shell .ai-panel .ai-style-option.is-selected {
+  border-color: #cfc3ef;
+  background: #f8f4ff;
+  color: #6b53b3;
+}
+
+.lume-app .studio-shell .ai-panel .ai-style-caption {
+  margin-top: -2px;
+  color: var(--editor-muted-text);
+  font-size: var(--editor-helper-size);
+  line-height: 1.55;
+}
+
+.lume-app .studio-shell .ai-panel .ai-empty-state {
+  padding: 30px 24px;
+}
+
+.lume-app .studio-shell .ai-panel .ai-empty-glyph {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 15px;
+}
+
+.lume-app .studio-shell .ai-panel .ai-empty-state h3 {
+  color: var(--editor-primary-text);
+  font-size: 19px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.lume-app .studio-shell .ai-panel .ai-empty-state p {
+  max-width: 300px;
+  margin-top: 6px;
+  color: var(--editor-secondary-text);
+  font-size: var(--editor-body-size);
+  line-height: 1.6;
+}
+
+.lume-app .studio-shell .ai-panel .ai-loading-note {
+  color: var(--editor-muted-text);
+  font-size: var(--editor-helper-size);
+}
+
+.lume-app .studio-shell .ai-panel .ai-result-head {
+  padding: 12px 14px;
+  color: #5c4d87;
+  font-size: 15px;
+}
+
+.lume-app .studio-shell .ai-panel .ai-local-label {
+  padding: 4px 7px;
+  color: #6b58a6;
+  font-size: 12px;
+}
+
+.lume-app .studio-shell .ai-panel .ai-compare-block {
+  padding: 13px 14px;
+}
+
+.lume-app .studio-shell .ai-panel .ai-compare-block > span,
+.lume-app .studio-shell .ai-panel .ai-original-line > span {
+  margin-bottom: 5px;
+  color: var(--editor-muted-text);
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+}
+
+.lume-app .studio-shell .ai-panel .ai-compare-block p,
+.lume-app .studio-shell .ai-panel .ai-original-line p {
+  color: var(--editor-label-text);
+  font-size: var(--editor-body-size);
+  line-height: 1.65;
+}
+
+.lume-app .studio-shell .ai-panel .ai-compare-block.is-suggested p {
+  color: var(--editor-primary-text);
+}
+
+.lume-app .studio-shell .ai-panel .ai-result-actions {
+  gap: 8px;
+  padding: 13px 14px 12px;
+}
+
+.lume-app .studio-shell .ai-panel .ai-source-note {
+  padding: 0 14px 13px;
+  color: var(--editor-muted-text);
+  font-size: var(--editor-helper-size);
+  line-height: 1.55;
+}
+
+.lume-app .studio-shell .ai-panel .ai-original-line {
+  padding: 13px;
+}
+
+.lume-app .studio-shell .ai-panel .app-field-label {
+  color: var(--editor-label-text);
+  font-size: 14.5px;
+}
+
+.lume-app .studio-shell .ai-panel .ai-bullet-select .app-input {
+  height: 46px;
+  font-size: var(--editor-body-size);
+}
+
+.lume-app .studio-shell .ai-panel .ai-write-hint {
+  gap: 6px;
+  color: var(--editor-muted-text);
+  font-size: var(--editor-helper-size);
+}
+
+.lume-app .studio-shell .ai-panel .ai-write-hint button {
+  color: #4560c4;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.lume-app .studio-shell .ai-panel .ai-bullet-tips {
+  gap: 7px;
+  padding-top: 12px;
+  color: var(--editor-secondary-text);
+  font-size: var(--editor-helper-size);
+  line-height: 1.55;
+}
+
+.lume-app .studio-shell .ai-panel .ai-bullet-tips > svg {
+  color: var(--editor-muted-text);
+}
+
+.lume-app .studio-shell .ai-panel .ai-panel-footer {
+  gap: 7px;
+  margin-top: 24px;
+  padding-top: 14px;
+  color: var(--editor-muted-text);
+  font-size: var(--editor-helper-size);
+  line-height: 1.55;
+}
+
+.lume-app .studio-shell .ai-panel .btn-cost {
+  padding: 4px 7px;
+  font-size: 12px;
+}
+
+/* ---------- Resume score panel ---------- */
+
+.lume-app .studio-shell .score-panel .score-hero {
+  padding: 18px;
+  border-radius: 14px;
+}
+
+.lume-app .studio-shell .score-panel .score-hero-main {
+  gap: 18px;
+}
+
+.lume-app .studio-shell .score-panel .score-hero-label {
+  color: var(--editor-secondary-text);
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+}
+
+.lume-app .studio-shell .score-panel .score-hero h2 {
+  margin-top: 5px;
+  color: var(--editor-primary-text);
+  font-size: 22px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.lume-app .studio-shell .score-panel .score-hero p {
+  max-width: none;
+  margin-top: 5px;
+  color: var(--editor-secondary-text);
+  font-size: var(--editor-body-size);
+  line-height: 1.6;
+}
+
+.lume-app .studio-shell .score-panel .score-hero-meta {
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 11px;
+  color: var(--editor-muted-text);
+  font-size: 13.5px;
+}
+
+.lume-app .studio-shell .score-panel .score-hero-meta > span:first-child {
+  color: var(--editor-secondary-text);
+}
+
+.lume-app .studio-shell .score-panel .score-checks-head {
+  margin: 24px 1px 11px;
+}
+
+.lume-app .studio-shell .score-panel .score-checks-head h2 {
+  color: var(--editor-primary-text);
+  font-size: var(--editor-section-size);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.lume-app .studio-shell .score-panel .score-checks-head > span {
+  color: #3f7a67;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.lume-app .studio-shell .score-panel .score-check-list {
+  gap: 7px;
+}
+
+.lume-app .studio-shell .score-panel .score-check {
+  gap: 10px;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.lume-app .studio-shell .score-panel .score-check-number {
+  color: var(--editor-muted-text);
+  font-size: 12px;
+}
+
+.lume-app .studio-shell .score-panel .score-check-status {
+  width: 22px;
+  height: 22px;
+}
+
+.lume-app .studio-shell .score-panel .score-check-copy h3 {
+  color: var(--editor-primary-text);
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.lume-app .studio-shell .score-panel .score-check-copy p {
+  margin-top: 3px;
+  color: var(--editor-secondary-text);
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+
+.lume-app .studio-shell .score-panel .score-fix-button {
+  margin-top: 2px;
+  padding: 5px 8px;
+  color: #8a5a2f;
+  font-size: var(--editor-meta-size);
+  font-weight: 650;
+}
+
+.lume-app .studio-shell .score-panel .score-check-pass-label {
+  margin-top: 4px;
+  color: #3f7a67;
+  font-size: 12.5px;
+}
+
+.lume-app .studio-shell .score-panel .score-footnote {
+  gap: 10px;
+  margin-top: 18px;
+  padding: 14px;
+}
+
+.lume-app .studio-shell .score-panel .score-footnote-icon {
+  width: 30px;
+  height: 30px;
+}
+
+.lume-app .studio-shell .score-panel .score-footnote strong {
+  color: var(--editor-primary-text);
+  font-size: 14.5px;
+}
+
+.lume-app .studio-shell .score-panel .score-footnote p {
+  margin-top: 4px;
+  color: var(--editor-secondary-text);
+  font-size: var(--editor-helper-size);
+  line-height: 1.55;
+}
+
+/* ---------- Live preview chrome ---------- */
+
+.lume-app .studio-shell .preview-status {
+  color: #637791;
+  font-size: 10.5px;
+}
+
+.lume-app .studio-shell .preview-page-label {
+  color: #7d8ca2;
+  font-size: 10.5px;
+}
+
+.lume-app .studio-shell .preview-zoom {
+  font-size: 11.5px;
+}
+
+.lume-app .studio-shell .preview-zoom-value {
+  font-size: 12px;
+}
+
+/* Never enlarge the exported resume itself. */
+.lume-app .studio-shell .resume-sheet {
+  font-size: 10pt;
+}
+
+@media (max-width: 1120px) {
+  .lume-app .studio-shell .score-panel .score-check {
+    gap: 8px;
+    padding: 11px;
+  }
+}
+
+@media (max-width: 760px) {
+  .lume-app .studio-shell .studio-panel-header h1 {
+    font-size: clamp(28px, 6.4vw, 34px);
+  }
+
+  .lume-app .studio-shell .studio-panel-description {
+    font-size: 14px;
+  }
+
+  .lume-app .studio-shell .write-accordion-copy strong {
+    font-size: 14.5px;
+  }
+
+  .lume-app .studio-shell .write-accordion-copy small {
+    font-size: 12px;
+  }
+}

@@ -1,0 +1,447 @@
+/* ==========================================================================
+   Lume application shell
+   One source of truth for the signed-in application: colour, type scale,
+   canvas, navigation and surface tokens shared by Workspace, Templates,
+   Billing and Settings. The landing page and sign-in keep their own sky
+   systems.
+   ========================================================================== */
+
+.lume-app {
+  /* Core palette */
+  --lume-canvas: #f7f9fd;
+  --lume-surface: #ffffff;
+  --lume-ink: #1b2843;
+  --lume-ink-soft: #2d3c5a;
+  --lume-body: #4f607c;
+  --lume-muted: #71809a;
+  --lume-placeholder: #8a97ab;
+  --lume-primary: #4965f5;
+  --lume-primary-deep: #3a53d9;
+  --lume-primary-soft: #edf2ff;
+  --lume-lavender: #9583ff;
+  --lume-lavender-deep: #7b68e8;
+  --lume-lavender-soft: #f3f0ff;
+  --lume-border: #e5eaf3;
+  --lume-border-strong: #d6deed;
+  --lume-dark: #252f59;
+  --lume-success: #3e8b72;
+  --lume-success-soft: #eaf5f0;
+  --lume-warning: #8a6a2f;
+  --lume-warning-soft: #fbf4e6;
+  --lume-danger: #b15b66;
+  --lume-danger-soft: #fdf1f2;
+
+  /* Shared type scale */
+  --lume-page-title: clamp(44px, 4.4vw, 56px);
+  --lume-section-title: 26px;
+  --lume-card-title: 24px;
+  --lume-card-title-sm: 18px;
+  --lume-body-size: 16px;
+  --lume-secondary-size: 14.5px;
+  --lume-meta-size: 13px;
+  --lume-button-size: 14px;
+
+  /* Shared surfaces */
+  --lume-card-radius: 20px;
+  --lume-card-radius-sm: 16px;
+  --lume-card-shadow:
+    0 1px 2px rgba(31, 44, 78, 0.03),
+    0 16px 42px rgba(44, 62, 110, 0.055);
+  --lume-card-shadow-hover:
+    0 2px 5px rgba(31, 44, 78, 0.04),
+    0 26px 58px rgba(44, 62, 110, 0.1);
+  --lume-dark-shadow: 0 24px 60px rgba(26, 37, 64, 0.2);
+  --lume-dark-gradient:
+    radial-gradient(
+      ellipse 70% 80% at 94% 0%,
+      rgba(149, 131, 255, 0.34),
+      transparent 60%
+    ),
+    linear-gradient(152deg, #1b2440 0%, #252f59 58%, #2f2f62 100%);
+  --lume-app-background:
+    radial-gradient(
+      ellipse 55% 42% at 3% 0%,
+      rgba(199, 221, 255, 0.3),
+      transparent 80%
+    ),
+    radial-gradient(
+      ellipse 48% 36% at 100% 2%,
+      rgba(216, 206, 255, 0.3),
+      transparent 80%
+    ),
+    #f7f9fd;
+}
+
+html:has(.lume-page),
+body:has(.lume-page) {
+  background-color: #f7f9fd;
+}
+
+.lume-app .lume-page {
+  min-height: 100vh;
+  background: var(--lume-app-background);
+  color: var(--lume-ink);
+}
+
+.lume-app .lume-page :focus-visible {
+  outline: 2.5px solid var(--lume-primary);
+  outline-offset: 3px;
+}
+
+.lume-app .lume-page ::selection {
+  background: var(--lume-primary-soft);
+  color: var(--lume-ink);
+}
+
+/* ---------- Shared navigation ---------- */
+
+.lume-app .app-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  height: 76px;
+  border-bottom: 1px solid rgba(229, 234, 243, 0.9);
+  background: rgba(250, 252, 255, 0.88);
+  -webkit-backdrop-filter: blur(18px) saturate(1.08);
+  backdrop-filter: blur(18px) saturate(1.08);
+}
+
+.lume-app .app-topbar-inner {
+  display: flex;
+  width: min(1320px, calc(100% - 64px));
+  height: 100%;
+  align-items: center;
+  gap: 26px;
+  margin: 0 auto;
+}
+
+.lume-app .app-brand {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  border-radius: 8px;
+}
+
+.lume-app .app-brand .lume-mark {
+  width: 33px;
+  height: 33px;
+}
+
+.lume-app .app-brand .lume-wordmark {
+  color: var(--lume-ink);
+  font-size: 25px;
+  letter-spacing: -0.045em;
+}
+
+.lume-app .app-topbar-divider,
+.lume-app .app-topbar-rule {
+  width: 1px;
+  height: 22px;
+  flex: none;
+  background: var(--lume-border-strong);
+}
+
+.lume-app .app-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lume-app .app-nav a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 38px;
+  border-radius: 10px;
+  padding: 0 15px;
+  color: var(--lume-body);
+  font-size: 14px;
+  font-weight: 620;
+  transition:
+    color 0.18s ease,
+    background-color 0.18s ease;
+}
+
+.lume-app .app-nav a:hover {
+  background: rgba(73, 101, 245, 0.07);
+  color: var(--lume-primary-deep);
+}
+
+.lume-app .app-nav a.is-active {
+  background: var(--lume-primary-soft);
+  color: var(--lume-primary-deep);
+  font-weight: 700;
+}
+
+.lume-app .app-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto;
+}
+
+.lume-app .app-usage-pill {
+  display: inline-flex;
+  height: 34px;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--lume-border);
+  border-radius: 99px;
+  padding: 0 13px;
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--lume-body);
+  font-size: 12.5px;
+  font-weight: 650;
+  white-space: nowrap;
+  transition:
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.lume-app .app-usage-pill:hover {
+  border-color: var(--lume-border-strong);
+  color: var(--lume-ink);
+}
+
+.lume-app .app-usage-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--lume-success);
+  box-shadow: 0 0 0 3px rgba(62, 139, 114, 0.12);
+}
+
+/* ---------- Shared type atoms ---------- */
+
+.lume-app .lume-page .app-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--lume-muted);
+  font-size: 12.5px;
+  font-weight: 750;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.lume-app .lume-page .app-eyebrow > span {
+  width: 22px;
+  height: 1.5px;
+  flex: none;
+  background: currentColor;
+  opacity: 0.75;
+}
+
+.lume-app .lume-page .app-eyebrow--light {
+  color: rgba(255, 255, 255, 0.76);
+}
+
+.lume-app .lume-page .app-eyebrow--light > span {
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.lume-app .lume-page .app-text-button {
+  color: var(--lume-primary);
+  font-size: 13px;
+}
+
+.lume-app .lume-page .app-text-button:hover {
+  color: var(--lume-primary-deep);
+}
+
+.lume-app .lume-page .app-btn {
+  height: 44px;
+  gap: 9px;
+  border-radius: 11px;
+  padding: 0 18px;
+  font-size: var(--lume-button-size);
+  font-weight: 700;
+}
+
+.lume-app .lume-page .app-btn--lg {
+  height: 50px;
+  border-radius: 12px;
+  padding: 0 22px;
+  font-size: 15px;
+}
+
+.lume-app .lume-page .app-btn--primary {
+  background: var(--lume-primary);
+  box-shadow:
+    0 1px 2px rgba(24, 37, 84, 0.16),
+    0 10px 24px rgba(73, 101, 245, 0.18);
+  color: #ffffff;
+}
+
+.lume-app .lume-page .app-btn--primary:hover:not(:disabled) {
+  background: var(--lume-primary-deep);
+  box-shadow:
+    0 1px 2px rgba(24, 37, 84, 0.18),
+    0 14px 30px rgba(73, 101, 245, 0.24);
+}
+
+.lume-app .lume-page .app-btn--quiet {
+  color: var(--lume-body);
+}
+
+.lume-app .lume-page .app-btn--quiet:hover:not(:disabled) {
+  background: var(--lume-primary-soft);
+  color: var(--lume-ink);
+}
+
+.lume-app .lume-page .app-field-label {
+  color: var(--lume-body);
+  font-size: 14px;
+}
+
+.lume-app .lume-page .app-field-hint {
+  color: var(--lume-muted);
+  font-size: 12px;
+}
+
+.lume-app .lume-page .app-input {
+  height: 44px;
+  border-radius: 9px;
+  padding-inline: 12px;
+  font-size: 15px;
+}
+
+.lume-app .lume-page .app-input--lg {
+  height: 50px;
+  font-size: 15px;
+}
+
+.lume-app .lume-page .app-textarea {
+  min-height: 94px;
+  padding: 12px;
+  line-height: 1.6;
+}
+
+/* ---------- Shared card surfaces ---------- */
+
+.lume-app .lume-page .workspace-metrics,
+.lume-app .lume-page .resume-card,
+.lume-app .lume-page .template-gallery-card,
+.lume-app .lume-page .billing-plan-card,
+.lume-app .lume-page .billing-side-card,
+.lume-app .lume-page .readiness-card,
+.lume-app .lume-page .tailored-card,
+.lume-app .lume-page .plan-mini-card {
+  border-color: var(--lume-border);
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: var(--lume-card-shadow);
+}
+
+.lume-app .lume-page .resume-card,
+.lume-app .lume-page .template-gallery-card,
+.lume-app .lume-page .workspace-metrics {
+  border-radius: var(--lume-card-radius);
+}
+
+.lume-app .lume-page .billing-plan-card,
+.lume-app .lume-page .billing-side-card,
+.lume-app .lume-page .readiness-card,
+.lume-app .lume-page .tailored-card,
+.lume-app .lume-page .plan-mini-card {
+  border-radius: var(--lume-card-radius-sm);
+}
+
+.lume-app .lume-page .resume-card:hover,
+.lume-app .lume-page .resume-card:focus-within,
+.lume-app .lume-page .template-gallery-card:hover {
+  border-color: var(--lume-border-strong);
+  box-shadow: var(--lume-card-shadow-hover);
+}
+
+.lume-app .lume-page .billing-plan-card--pro {
+  border-color: #ded9f5;
+  background:
+    radial-gradient(
+      ellipse at 95% 0%,
+      rgba(238, 232, 255, 0.9),
+      transparent 55%
+    ),
+    #fbfaff;
+}
+
+.lume-app .lume-page .billing-plan-card.is-current {
+  box-shadow:
+    0 0 0 2px rgba(73, 101, 245, 0.12),
+    var(--lume-card-shadow);
+}
+
+.lume-app .lume-page .next-move-card,
+.lume-app .lume-page .billing-current.is-pro {
+  border-color: rgba(35, 49, 86, 0.7);
+  background: var(--lume-dark-gradient);
+  box-shadow: var(--lume-dark-shadow);
+}
+
+.lume-app .lume-page .billing-current:not(.is-pro) {
+  border-color: var(--lume-border);
+  background: var(--lume-surface);
+  box-shadow: var(--lume-card-shadow);
+}
+
+.lume-app .lume-page .next-move-orbit,
+.lume-app .lume-page .billing-current-glow {
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+/* ---------- Shared responsive navigation ---------- */
+
+@media (max-width: 1120px) {
+  .lume-app .app-topbar-inner {
+    width: calc(100% - 48px);
+  }
+}
+
+@media (max-width: 980px) {
+  .lume-app .app-topbar {
+    height: 68px;
+  }
+
+  .lume-app .app-topbar-inner {
+    width: calc(100% - 36px);
+  }
+
+  .lume-app .app-nav,
+  .lume-app .app-usage-pill,
+  .lume-app .app-topbar-rule,
+  .lume-app .app-topbar-divider {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .lume-app .app-topbar-inner {
+    width: calc(100% - 32px);
+  }
+
+  .lume-app .app-user-name {
+    display: none;
+  }
+
+  .lume-app .app-brand .lume-wordmark {
+    font-size: 24px;
+  }
+
+  .lume-app .lume-page .dash-intro h1,
+  .lume-app .lume-page .templates-intro h1,
+  .lume-app .lume-page .billing-intro h1,
+  .lume-app .lume-page .settings-intro h1 {
+    font-size: clamp(37px, 9.6vw, 48px);
+  }
+}
+
+@media (max-width: 480px) {
+  .lume-app .app-topbar-inner {
+    width: calc(100% - 24px);
+  }
+
+  .lume-app .app-brand .lume-mark {
+    width: 30px;
+    height: 30px;
+  }
+}

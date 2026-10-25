@@ -607,7 +607,6 @@ body:has(.landing) {
   --lume-sky-low: #7194c2;
   --lume-sky-horizon: #8da2be;
   --lume-gold: #eec9aa;
-  --lume-cloud-brightness: 1;
   position: relative;
   isolation: isolate;
   min-height: 1190px;
@@ -660,79 +659,10 @@ body:has(.landing) {
     );
 }
 
-.bluehour-cloud {
-  position: absolute;
+/* Living sky. The photo and scenery stay still while the cloud sprites drift;
+   HeroClouds supplies --sky-x/--sky-y for the pointer parallax. */
+.hero > .lume-sky {
   z-index: -1;
-  display: block;
-  pointer-events: none;
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-  transform: translate3d(0, 0, 0);
-  filter: brightness(var(--lume-cloud-brightness));
-  will-change: transform;
-}
-
-.bluehour-cloud.cloud-left {
-  top: 92px;
-  left: -1.4vw;
-  width: min(35vw, 470px);
-  aspect-ratio: 470 / 413;
-  background-image: url("/marketing/clouds/bluehour-left.webp");
-  animation: bluehour-drift-left 47s ease-in-out infinite alternate;
-}
-
-.bluehour-cloud.cloud-right {
-  top: 93px;
-  right: -0.4vw;
-  width: min(32vw, 421px);
-  aspect-ratio: 421 / 561;
-  background-image: url("/marketing/clouds/bluehour-right.webp");
-  animation: bluehour-drift-right 56s ease-in-out infinite alternate;
-}
-
-.bluehour-cloud.cloud-left-bottom {
-  top: 495px;
-  left: 0;
-  width: min(14vw, 205px);
-  aspect-ratio: 205 / 472;
-  background-image: url("/marketing/clouds/bluehour-left-bottom.webp");
-  animation: bluehour-drift-low 67s ease-in-out infinite alternate;
-}
-
-.bluehour-cloud.cloud-right-bottom {
-  top: 495px;
-  right: 0;
-  width: min(15vw, 211px);
-  aspect-ratio: 211 / 472;
-  background-image: url("/marketing/clouds/bluehour-right-bottom.webp");
-  animation: bluehour-drift-low 71s ease-in-out infinite alternate-reverse;
-}
-
-@keyframes bluehour-drift-left {
-  from {
-    transform: translate3d(-11px, 0, 0);
-  }
-  to {
-    transform: translate3d(23px, -6px, 0);
-  }
-}
-
-@keyframes bluehour-drift-right {
-  from {
-    transform: translate3d(10px, 2px, 0);
-  }
-  to {
-    transform: translate3d(-27px, -4px, 0);
-  }
-}
-
-@keyframes bluehour-drift-low {
-  from {
-    transform: translate3d(-8px, 0, 0);
-  }
-  to {
-    transform: translate3d(12px, -7px, 0);
-  }
 }
 
 .hero-inner {
@@ -3789,30 +3719,6 @@ body:has(.landing) {
     width: calc(100% - 28px);
     margin-top: 35px;
   }
-
-  .bluehour-cloud.cloud-left {
-    width: 60vw;
-    left: -20vw;
-    top: 180px;
-    opacity: 0.8;
-  }
-
-  .bluehour-cloud.cloud-right {
-    width: 57vw;
-    right: -25vw;
-    top: 180px;
-    opacity: 0.8;
-  }
-
-  .bluehour-cloud.cloud-left-bottom {
-    width: 24vw;
-    top: 645px;
-  }
-
-  .bluehour-cloud.cloud-right-bottom {
-    width: 24vw;
-    top: 645px;
-  }
 }
 
 @media (max-width: 540px) {
@@ -3833,25 +3739,6 @@ body:has(.landing) {
     max-width: 340px;
     font-size: 12px;
     line-height: 1.55;
-  }
-
-  .bluehour-cloud.cloud-left {
-    width: 90vw;
-    left: -47vw;
-    top: 170px;
-    opacity: 0.73;
-  }
-
-  .bluehour-cloud.cloud-right {
-    width: 82vw;
-    right: -48vw;
-    top: 220px;
-    opacity: 0.74;
-  }
-
-  .bluehour-cloud.cloud-left-bottom,
-  .bluehour-cloud.cloud-right-bottom {
-    opacity: 0.48;
   }
 
   .hero-stage {

@@ -1,0 +1,1336 @@
+/* ==========================================================================
+   Lume workspace
+   Page-specific composition for the dashboard. All colour, surface, radius and
+   shadow decisions come from the shared tokens in app-shell.css.
+   ========================================================================== */
+
+.lume-app .lume-dashboard {
+  /* Map the shared atoms onto the workspace aliases used below. */
+  --app-primary: var(--lume-primary);
+  --app-primary-deep: var(--lume-primary-deep);
+  --app-primary-soft: var(--lume-primary-soft);
+  --app-ink: var(--lume-ink);
+  --app-ink-deep: #131d33;
+  --app-muted: var(--lume-muted);
+  --app-line: var(--lume-border);
+  --app-line-strong: var(--lume-border-strong);
+
+  --dash-canvas: var(--lume-canvas);
+  --dash-surface: var(--lume-surface);
+  --dash-surface-strong: #ffffff;
+  --dash-ink: var(--lume-ink);
+  --dash-ink-soft: var(--lume-ink-soft);
+  --dash-body: var(--lume-body);
+  --dash-muted: var(--lume-muted);
+  --dash-placeholder: var(--lume-placeholder);
+  --dash-line: var(--lume-border);
+  --dash-line-strong: var(--lume-border-strong);
+  --dash-primary: var(--lume-primary);
+  --dash-primary-deep: var(--lume-primary-deep);
+  --dash-primary-soft: var(--lume-primary-soft);
+  --dash-violet: var(--lume-lavender-deep);
+  --dash-violet-soft: var(--lume-lavender-soft);
+  --dash-sage: var(--lume-success);
+  --dash-sage-soft: var(--lume-success-soft);
+  --dash-amber: var(--lume-warning);
+  --dash-amber-soft: var(--lume-warning-soft);
+  --dash-rose: var(--lume-danger);
+  --dash-rose-soft: var(--lume-danger-soft);
+  --dash-shadow-card: var(--lume-card-shadow);
+  --dash-shadow-hover: var(--lume-card-shadow-hover);
+
+  position: relative;
+  overflow: clip;
+}
+
+/* The old cool-toned orbital ring is no longer part of the composition. */
+.lume-app .lume-dashboard::before {
+  display: none;
+}
+
+.lume-dashboard :focus-visible {
+  outline: 2.5px solid var(--dash-primary);
+  outline-offset: 3px;
+}
+
+/* Keep the brand lockup independent of stylesheet load order. */
+.lume-dashboard .lume-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lume-dashboard .lume-wordmark {
+  font-family: var(--font-lume), ui-rounded, ui-sans-serif, system-ui,
+    sans-serif;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+
+.lume-dashboard .app-score-pill {
+  height: 29px;
+  gap: 5px;
+  border-color: #dfe4f8;
+  padding: 0 10px;
+  background: #f6f8ff;
+  color: var(--dash-primary-deep);
+  font-size: var(--lume-meta-size);
+}
+
+.lume-dashboard .app-score-pill > span {
+  color: var(--dash-muted);
+  font-size: 12.5px;
+}
+
+.lume-dashboard .app-score-pill > svg {
+  width: 14px;
+  height: 14px;
+}
+
+.lume-dashboard .app-score-ring-track {
+  stroke: #e8edf6;
+}
+
+.lume-dashboard .app-score-ring-label {
+  color: var(--dash-ink);
+}
+
+/* ---------- Page shell ---------- */
+
+.lume-dashboard .dash-main {
+  width: min(1360px, calc(100% - 72px));
+  padding: clamp(46px, 4vw, 66px) 0 96px;
+}
+
+.lume-dashboard .dash-intro {
+  align-items: flex-end;
+  gap: 36px;
+  animation: dash-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.lume-dashboard .dash-intro-copy {
+  max-width: 840px;
+}
+
+.lume-dashboard .dash-intro h1 {
+  margin-top: 18px;
+  color: var(--dash-ink);
+  font-size: var(--lume-page-title);
+  font-weight: 620;
+  letter-spacing: -0.052em;
+  line-height: 1.02;
+}
+
+.lume-dashboard .dash-intro h1 > span {
+  color: var(--dash-primary);
+}
+
+.lume-dashboard .dash-subtitle {
+  max-width: 610px;
+  margin-top: 17px;
+  color: var(--dash-muted);
+  font-size: var(--lume-body-size);
+  font-weight: 450;
+  line-height: 1.7;
+}
+
+.lume-dashboard .dash-new-button {
+  margin-bottom: 4px;
+}
+
+/* ---------- Workspace metrics ---------- */
+
+.lume-dashboard .workspace-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(300px, auto);
+  align-items: stretch;
+  margin-top: 34px;
+  margin-bottom: 48px;
+  overflow: hidden;
+  border: 1px solid var(--dash-line);
+  border-radius: 20px;
+  background: rgba(255, 254, 250, 0.82);
+  box-shadow: var(--dash-shadow-card);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  animation: dash-rise 0.55s 0.05s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.lume-dashboard .workspace-metric {
+  display: flex;
+  min-width: 0;
+  flex-direction: row;
+  align-items: center;
+  gap: 15px;
+  border-right: 1px solid var(--dash-line);
+  padding: 20px 26px;
+}
+
+.lume-dashboard .workspace-metric-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: none;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--dash-primary-soft);
+  color: var(--dash-primary);
+}
+
+.lume-dashboard .workspace-metric-icon > svg {
+  width: 20px;
+  height: 20px;
+}
+
+.lume-dashboard .workspace-metric:nth-child(2) .workspace-metric-icon {
+  background: var(--dash-sage-soft);
+  color: var(--dash-sage);
+}
+
+.lume-dashboard .workspace-metric:nth-child(3) .workspace-metric-icon {
+  background: var(--dash-violet-soft);
+  color: var(--dash-violet);
+}
+
+.lume-dashboard .workspace-metric-body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.lume-dashboard .workspace-metric-label {
+  color: var(--dash-muted);
+  font-size: var(--lume-meta-size);
+  font-weight: 600;
+  letter-spacing: 0.005em;
+  line-height: 1.25;
+}
+
+.lume-dashboard .workspace-metric strong {
+  color: var(--dash-ink);
+  font-size: 30px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 640;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.lume-dashboard .workspace-metric strong small {
+  margin-left: 5px;
+  color: var(--dash-muted);
+  font-size: var(--lume-meta-size);
+  font-weight: 550;
+  letter-spacing: 0;
+}
+
+.lume-dashboard .workspace-status {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 18px 26px;
+}
+
+.lume-dashboard .workspace-status-dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--dash-sage);
+  box-shadow: 0 0 0 4px rgba(44, 122, 91, 0.11);
+  animation: dash-status-pulse 3.4s ease-in-out infinite;
+}
+
+.lume-dashboard .workspace-status > span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  color: var(--dash-body);
+  font-size: var(--lume-meta-size);
+  font-weight: 650;
+}
+
+.lume-dashboard .workspace-status small {
+  color: var(--dash-muted);
+  font-size: 12.5px;
+  font-weight: 450;
+}
+
+/* ---------- Library + aside layout ---------- */
+
+.lume-dashboard .dash-grid {
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: clamp(30px, 3.2vw, 46px);
+  animation: dash-rise 0.55s 0.1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.lume-dashboard .resume-library-head {
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.lume-dashboard .resume-library-head h2 {
+  color: var(--dash-ink);
+  font-size: var(--lume-section-title);
+  font-weight: 640;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+}
+
+.lume-dashboard .resume-library-head p {
+  margin-top: 7px;
+  color: var(--dash-muted);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.lume-dashboard .resume-search {
+  width: 260px;
+  height: 44px;
+  gap: 9px;
+  border-color: var(--dash-line);
+  border-radius: 12px;
+  padding: 0 13px;
+  background: var(--dash-surface);
+  color: var(--dash-muted);
+}
+
+.lume-dashboard .resume-search > svg {
+  width: 17px;
+  height: 17px;
+  flex: none;
+}
+
+.lume-dashboard .resume-search:focus-within {
+  border-color: var(--dash-primary);
+  background: var(--dash-surface-strong);
+  box-shadow: 0 0 0 4px rgba(59, 91, 219, 0.12);
+}
+
+.lume-dashboard .resume-search input {
+  color: var(--dash-ink);
+  font-size: 14px;
+}
+
+.lume-dashboard .resume-search input::placeholder {
+  color: var(--dash-placeholder);
+}
+
+/* ---------- Resume cards ---------- */
+
+.lume-dashboard .resume-grid {
+  gap: 20px;
+}
+
+.lume-dashboard .resume-card {
+  border: 1px solid var(--dash-line);
+  border-radius: 20px;
+  background: var(--dash-surface);
+  box-shadow: var(--dash-shadow-card);
+}
+
+.lume-dashboard .resume-card:hover,
+.lume-dashboard .resume-card:focus-within {
+  border-color: var(--dash-line-strong);
+  box-shadow: var(--dash-shadow-hover);
+  transform: translateY(-3px);
+}
+
+.lume-dashboard .resume-card--featured {
+  grid-template-columns: 1.04fr 0.96fr;
+  min-height: 344px;
+}
+
+.lume-dashboard .dash-paper-frame {
+  height: 244px;
+  border-radius: 19px 19px 0 0;
+  background:
+    radial-gradient(
+      ellipse 72% 82% at 84% 0%,
+      rgba(208, 211, 250, 0.68),
+      transparent 62%
+    ),
+    radial-gradient(
+      ellipse 70% 60% at 8% 94%,
+      rgba(222, 232, 255, 0.9),
+      transparent 64%
+    ),
+    #f1f5fd;
+}
+
+.lume-dashboard .resume-card--featured .dash-paper-frame {
+  height: 344px;
+  border-radius: 19px 0 0 19px;
+  background:
+    radial-gradient(
+      ellipse 72% 64% at 74% 12%,
+      rgba(212, 213, 250, 0.76),
+      transparent 62%
+    ),
+    radial-gradient(
+      ellipse 66% 56% at 6% 94%,
+      rgba(224, 234, 255, 0.94),
+      transparent 64%
+    ),
+    #f2f5fd;
+}
+
+.lume-dashboard .dash-paper-frame::after {
+  height: 52px;
+  background: linear-gradient(transparent, rgba(255, 255, 255, 0.72));
+}
+
+.lume-dashboard .dash-paper-glow {
+  background: rgba(255, 255, 255, 0.46);
+}
+
+.lume-dashboard .dash-paper-holder {
+  top: 24px;
+  transform: scale(0.31);
+}
+
+.lume-dashboard .resume-card--featured .dash-paper-holder {
+  top: 30px;
+  transform: scale(0.37);
+}
+
+.lume-dashboard .resume-card:hover .dash-paper-holder,
+.lume-dashboard .resume-card:focus-within .dash-paper-holder {
+  transform: scale(0.317);
+}
+
+.lume-dashboard .resume-card--featured:hover .dash-paper-holder,
+.lume-dashboard .resume-card--featured:focus-within .dash-paper-holder {
+  transform: scale(0.38);
+}
+
+.lume-dashboard .resume-card-content {
+  padding: 20px 24px 19px;
+}
+
+.lume-dashboard .resume-card--featured .resume-card-content {
+  padding: 38px 36px;
+}
+
+.lume-dashboard .resume-card-topline {
+  min-height: 20px;
+}
+
+.lume-dashboard .resume-card-label {
+  color: var(--dash-muted);
+  font-size: var(--lume-meta-size);
+  letter-spacing: 0.13em;
+}
+
+.lume-dashboard .resume-card-tailored {
+  gap: 5px;
+  color: var(--dash-violet);
+  font-size: var(--lume-meta-size);
+}
+
+.lume-dashboard .resume-card-tailored > svg {
+  width: 14px;
+  height: 14px;
+}
+
+.lume-dashboard .resume-card h3 {
+  margin-top: 8px;
+  color: var(--dash-ink);
+  font-size: var(--lume-card-title-sm);
+  font-weight: 640;
+  letter-spacing: -0.022em;
+  line-height: 1.35;
+}
+
+.lume-dashboard .resume-card--featured h3 {
+  margin-top: 10px;
+  color: var(--dash-ink);
+  font-size: clamp(26px, 2.3vw, 34px);
+  font-weight: 620;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+}
+
+.lume-dashboard .resume-card-role {
+  gap: 7px;
+  margin-top: 6px;
+  color: var(--dash-muted);
+  font-size: 14px;
+}
+
+.lume-dashboard .resume-card-role > span {
+  color: var(--dash-line-strong);
+}
+
+.lume-dashboard .resume-card--featured .resume-card-role {
+  margin-top: 12px;
+  color: var(--dash-body);
+  font-size: 15px;
+}
+
+.lume-dashboard .resume-card-foot {
+  padding-top: 18px;
+}
+
+.lume-dashboard .resume-card--featured .resume-card-foot {
+  gap: 20px;
+  padding-top: 32px;
+}
+
+.lume-dashboard .resume-card-meta {
+  gap: 9px;
+}
+
+.lume-dashboard .resume-card-meta > span:last-child {
+  color: var(--dash-muted);
+  font-size: var(--lume-meta-size);
+}
+
+.lume-dashboard .resume-card-open {
+  gap: 4px;
+  color: var(--dash-primary);
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.lume-dashboard .resume-card-open > svg {
+  width: 15px;
+  height: 15px;
+}
+
+.lume-dashboard .resume-card:hover .resume-card-open {
+  color: var(--dash-primary-deep);
+}
+
+/* Card menu */
+
+.lume-dashboard .resume-card-actions {
+  top: 14px;
+  right: 14px;
+}
+
+.lume-dashboard .resume-card--featured .resume-card-actions {
+  top: 18px;
+  right: 18px;
+}
+
+.lume-dashboard .resume-menu-trigger {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--dash-muted);
+}
+
+.lume-dashboard .resume-menu-trigger:hover,
+.lume-dashboard .resume-menu-trigger.is-open {
+  border-color: var(--dash-line);
+  background: var(--dash-surface-strong);
+  color: var(--dash-ink);
+  box-shadow: 0 6px 16px rgba(35, 33, 26, 0.08);
+}
+
+.lume-dashboard .resume-card-menu {
+  width: 200px;
+  border-color: var(--dash-line);
+  border-radius: 12px;
+  padding: 6px;
+  background: var(--dash-surface-strong);
+  box-shadow:
+    0 24px 52px rgba(31, 32, 29, 0.16),
+    0 2px 6px rgba(31, 32, 29, 0.05);
+}
+
+.lume-dashboard .resume-card-menu button {
+  height: 40px;
+  gap: 9px;
+  border-radius: 8px;
+  padding: 0 10px;
+  color: var(--dash-body);
+  font-size: 13px;
+  font-weight: 550;
+}
+
+.lume-dashboard .resume-card-menu button > svg {
+  width: 15px;
+  height: 15px;
+}
+
+.lume-dashboard .resume-card-menu button:hover {
+  background: var(--dash-primary-soft);
+  color: var(--dash-ink);
+}
+
+.lume-dashboard .resume-card-menu button.is-danger {
+  color: var(--dash-rose);
+}
+
+.lume-dashboard .resume-card-menu button.is-danger:hover {
+  background: #fbf0f1;
+}
+
+/* New-resume card */
+
+.lume-dashboard .resume-card--new {
+  min-height: 128px;
+  gap: 22px;
+  border-color: var(--dash-line-strong);
+  border-radius: 20px;
+  padding: 20px 26px;
+  background: rgba(255, 254, 250, 0.55);
+}
+
+.lume-dashboard .resume-card--new:hover {
+  border-color: #b9c4ef;
+  background: var(--dash-surface-strong);
+}
+
+.lume-dashboard .resume-new-art {
+  width: 78px;
+  height: 88px;
+}
+
+.lume-dashboard .resume-new-sheet {
+  width: 54px;
+  height: 68px;
+  border-color: var(--dash-line);
+  padding: 13px 9px;
+  box-shadow: 0 8px 20px rgba(44, 65, 112, 0.08);
+}
+
+.lume-dashboard .resume-new-sheet > span {
+  background: #e3e9f5;
+}
+
+.lume-dashboard .resume-new-sheet > span:first-child {
+  background: var(--dash-primary);
+}
+
+.lume-dashboard .resume-new-plus {
+  width: 37px;
+  height: 37px;
+  border-color: var(--dash-line);
+  border-radius: 11px;
+  color: var(--dash-primary);
+}
+
+.lume-dashboard .resume-new-copy {
+  gap: 5px;
+}
+
+.lume-dashboard .resume-new-copy strong {
+  color: var(--dash-ink);
+  font-size: 15px;
+  font-weight: 640;
+}
+
+.lume-dashboard .resume-new-copy span {
+  color: var(--dash-muted);
+  font-size: 13px;
+}
+
+.lume-dashboard .resume-new-arrow {
+  width: 34px;
+  height: 34px;
+  border-color: var(--dash-line);
+  color: var(--dash-muted);
+}
+
+.lume-dashboard .resume-card--new:hover .resume-new-arrow {
+  color: var(--dash-primary);
+}
+
+/* ---------- Aside ---------- */
+
+.lume-dashboard .dash-aside {
+  gap: 16px;
+}
+
+.lume-dashboard .next-move-card {
+  border-radius: 20px;
+  padding: 28px 26px 22px;
+  background:
+    radial-gradient(
+      ellipse 70% 80% at 94% 0%,
+      rgba(131, 117, 244, 0.36),
+      transparent 60%
+    ),
+    linear-gradient(152deg, #18233d 0%, #202f50 58%, #2b3157 100%);
+  box-shadow: 0 24px 60px rgba(26, 37, 64, 0.2);
+}
+
+.lume-dashboard .next-move-orbit {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.lume-dashboard .next-move-icon {
+  width: 36px;
+  height: 36px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.lume-dashboard .next-move-card h2 {
+  max-width: 270px;
+  margin-top: 13px;
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.06;
+}
+
+.lume-dashboard .next-move-card > p:not(.app-eyebrow) {
+  margin-top: 12px;
+  color: rgba(233, 239, 249, 0.84);
+  font-size: 15px;
+  line-height: 1.62;
+}
+
+.lume-dashboard .next-move-action {
+  height: 44px;
+  gap: 8px;
+  margin-top: 22px;
+  border-radius: 10px;
+  padding: 0 16px;
+  color: var(--lume-ink);
+  font-size: 14px;
+}
+
+.lume-dashboard .next-move-action:hover {
+  box-shadow: 0 10px 24px rgba(8, 18, 39, 0.28);
+}
+
+.lume-dashboard .next-move-foot {
+  gap: 6px;
+  margin-top: 22px;
+  padding-top: 15px;
+  border-top-color: rgba(255, 255, 255, 0.13);
+  color: rgba(233, 239, 249, 0.7);
+  font-size: var(--lume-meta-size);
+}
+
+.lume-dashboard .readiness-card,
+.lume-dashboard .tailored-card,
+.lume-dashboard .plan-mini-card {
+  border: 1px solid var(--dash-line);
+  border-radius: 18px;
+  background: var(--dash-surface);
+  box-shadow: var(--dash-shadow-card);
+}
+
+.lume-dashboard .readiness-card {
+  padding: 22px;
+}
+
+.lume-dashboard .readiness-head h2 {
+  margin-top: 10px;
+  color: var(--dash-ink);
+  font-size: var(--lume-card-title-sm);
+  font-weight: 640;
+}
+
+.lume-dashboard .readiness-head p {
+  max-width: 220px;
+  margin-top: 4px;
+  color: var(--dash-muted);
+  font-size: 13.5px;
+}
+
+.lume-dashboard .readiness-bar {
+  height: 6px;
+  margin-top: 18px;
+  background: #e8edf6;
+}
+
+.lume-dashboard .readiness-bar > span {
+  background: linear-gradient(90deg, #4a68e8, #8a76e8);
+}
+
+.lume-dashboard .readiness-status {
+  gap: 6px;
+  margin-top: 12px;
+  color: var(--dash-body);
+  font-size: 13.5px;
+}
+
+.lume-dashboard .readiness-status > svg {
+  width: 15px;
+  height: 15px;
+  color: var(--dash-sage);
+}
+
+.lume-dashboard .readiness-link {
+  gap: 5px;
+  margin-top: 13px;
+  color: var(--dash-primary);
+  font-size: 13.5px;
+}
+
+.lume-dashboard .readiness-link > svg {
+  width: 15px;
+  height: 15px;
+}
+
+.lume-dashboard .readiness-link:hover {
+  color: var(--dash-primary-deep);
+}
+
+.lume-dashboard .tailored-card {
+  gap: 12px;
+  padding: 19px 20px;
+  background: linear-gradient(140deg, #f7f3fd, var(--dash-surface));
+}
+
+.lume-dashboard .tailored-card-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+}
+
+.lume-dashboard .tailored-card-label {
+  color: var(--dash-violet);
+  font-size: 12.5px;
+  letter-spacing: 0.1em;
+}
+
+.lume-dashboard .tailored-card h2 {
+  margin-top: 6px;
+  color: var(--dash-ink-soft);
+  font-size: 16px;
+}
+
+.lume-dashboard .tailored-card p {
+  margin-top: 4px;
+  color: var(--dash-muted);
+  font-size: 13.5px;
+}
+
+.lume-dashboard .tailored-card > a {
+  width: 32px;
+  height: 32px;
+}
+
+.lume-dashboard .plan-mini-card {
+  padding: 19px 20px;
+}
+
+.lume-dashboard .plan-mini-top {
+  color: var(--dash-muted);
+  font-size: var(--lume-meta-size);
+}
+
+.lume-dashboard .plan-mini-top > span:first-child {
+  gap: 6px;
+  color: var(--dash-body);
+  font-size: 13.5px;
+}
+
+.lume-dashboard .plan-mini-bar {
+  height: 6px;
+  margin-top: 12px;
+  background: #e8edf6;
+}
+
+.lume-dashboard .plan-mini-card p {
+  margin-top: 10px;
+  color: var(--dash-muted);
+  font-size: 13.5px;
+}
+
+.lume-dashboard .plan-mini-card > a {
+  gap: 5px;
+  margin-top: 12px;
+  color: var(--dash-primary);
+  font-size: 13.5px;
+}
+
+.lume-dashboard .plan-mini-card > a:hover {
+  color: var(--dash-primary-deep);
+}
+
+.lume-dashboard .demo-note {
+  gap: 9px;
+  padding: 6px 4px;
+  color: var(--dash-muted);
+  font-size: var(--lume-meta-size);
+}
+
+.lume-dashboard .demo-note > svg {
+  width: 16px;
+  height: 16px;
+  color: var(--dash-muted);
+}
+
+/* ---------- Empty and no-results states ---------- */
+
+.lume-dashboard .dash-empty {
+  min-height: 430px;
+  border: 1px dashed var(--dash-line-strong);
+  border-radius: 22px;
+  padding: 56px 36px;
+  background: rgba(255, 254, 250, 0.55);
+}
+
+.lume-dashboard .dash-empty-mark {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 22px;
+  border-radius: 16px;
+  color: var(--dash-primary);
+  box-shadow: 0 14px 34px rgba(40, 61, 108, 0.08);
+}
+
+.lume-dashboard .dash-empty h2 {
+  max-width: 400px;
+  margin-top: 14px;
+  color: var(--dash-ink);
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.12;
+}
+
+.lume-dashboard .dash-empty > p:not(.app-eyebrow) {
+  max-width: 420px;
+  margin-top: 12px;
+  color: var(--dash-body);
+  font-size: 14.5px;
+  line-height: 1.65;
+}
+
+.lume-dashboard .dash-empty .app-btn {
+  margin-top: 26px;
+}
+
+.lume-dashboard .dash-no-results {
+  min-height: 280px;
+  border-color: var(--dash-line-strong);
+  border-radius: 20px;
+  color: var(--dash-muted);
+}
+
+.lume-dashboard .dash-no-results h2 {
+  margin-top: 13px;
+  color: var(--dash-ink-soft);
+  font-size: 18px;
+}
+
+.lume-dashboard .dash-no-results p {
+  margin-top: 5px;
+  font-size: 13px;
+}
+
+.lume-dashboard .dash-no-results .app-text-button {
+  margin-top: 15px;
+}
+
+/* ---------- Motion ---------- */
+
+@keyframes dash-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes dash-status-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 4px rgba(44, 122, 91, 0.11);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(44, 122, 91, 0.03);
+  }
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1280px) {
+  .lume-dashboard .workspace-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(270px, auto);
+  }
+
+  .lume-dashboard .workspace-metric {
+    gap: 12px;
+    padding: 18px 20px;
+  }
+
+  .lume-dashboard .workspace-status {
+    padding: 16px 20px;
+  }
+
+  .lume-dashboard .dash-grid {
+    grid-template-columns: minmax(0, 1fr) 330px;
+    gap: 30px;
+  }
+
+  .lume-dashboard .resume-grid {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 1120px) {
+  .lume-dashboard .dash-main {
+    width: calc(100% - 48px);
+  }
+
+  .lume-dashboard .workspace-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(240px, auto);
+  }
+
+  .lume-dashboard .workspace-metric {
+    padding: 17px 16px;
+  }
+
+  .lume-dashboard .workspace-metric-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .lume-dashboard .workspace-metric-icon > svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .lume-dashboard .workspace-metric strong {
+    font-size: 27px;
+  }
+
+  .lume-dashboard .workspace-status {
+    padding: 16px;
+  }
+
+  .lume-dashboard .dash-grid {
+    grid-template-columns: minmax(0, 1fr) 306px;
+    gap: 26px;
+  }
+
+  .lume-dashboard .resume-card--featured {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 1080px) {
+  .lume-dashboard .dash-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lume-dashboard .dash-aside {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 16px;
+    margin-top: 8px;
+  }
+
+  .lume-dashboard .next-move-card {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 1080px) and (min-width: 621px) {
+  .lume-dashboard .demo-note {
+    align-items: center;
+    border: 1px solid var(--dash-line);
+    border-radius: 18px;
+    padding: 18px 20px;
+    background: rgba(255, 255, 255, 0.72);
+    font-size: 12.5px;
+    line-height: 1.55;
+  }
+}
+
+@media (max-width: 980px) {
+  .lume-dashboard .dash-main {
+    padding-top: 48px;
+  }
+
+  .lume-dashboard .dash-intro {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .lume-dashboard .dash-new-button {
+    align-self: flex-start;
+    margin-bottom: 0;
+  }
+
+  .lume-dashboard .workspace-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 32px;
+    margin-bottom: 44px;
+  }
+
+  .lume-dashboard .workspace-metric {
+    padding: 18px;
+  }
+
+  .lume-dashboard .workspace-metric:nth-child(3) {
+    border-right: 0;
+  }
+
+  .lume-dashboard .workspace-status {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    border-top: 1px solid var(--dash-line);
+    padding: 14px 18px;
+  }
+
+  .lume-dashboard .dash-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lume-dashboard .dash-aside {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 16px;
+    margin-top: 8px;
+  }
+
+  .lume-dashboard .next-move-card {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .lume-dashboard .dash-main {
+    width: calc(100% - 32px);
+  }
+
+  .lume-dashboard .dash-intro h1 {
+    font-size: clamp(38px, 9.6vw, 52px);
+  }
+
+  .lume-dashboard .dash-subtitle {
+    font-size: 15px;
+  }
+
+  .lume-dashboard .workspace-metric {
+    gap: 10px;
+    padding: 16px 13px;
+  }
+
+  .lume-dashboard .workspace-metric-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+  }
+
+  .lume-dashboard .workspace-metric-icon > svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .lume-dashboard .workspace-metric-label {
+    font-size: var(--lume-meta-size);
+  }
+
+  .lume-dashboard .workspace-metric strong {
+    font-size: 25px;
+  }
+
+  .lume-dashboard .workspace-status > span:last-child {
+    font-size: var(--lume-meta-size);
+  }
+
+  .lume-dashboard .workspace-status small {
+    font-size: 12.5px;
+  }
+
+  .lume-dashboard .resume-library-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .lume-dashboard .resume-search {
+    width: 100%;
+    height: 46px;
+  }
+
+  .lume-dashboard .resume-search input {
+    font-size: 16px;
+  }
+
+  .lume-dashboard .resume-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lume-dashboard .resume-card--featured {
+    display: flex;
+    flex-direction: column;
+    grid-column: auto;
+    min-height: 0;
+  }
+
+  .lume-dashboard .resume-card--featured .dash-paper-frame {
+    height: 252px;
+    border-radius: 19px 19px 0 0;
+  }
+
+  .lume-dashboard .dash-paper-frame {
+    height: 244px;
+  }
+
+  .lume-dashboard .dash-paper-holder,
+  .lume-dashboard .resume-card:hover .dash-paper-holder,
+  .lume-dashboard .resume-card:focus-within .dash-paper-holder {
+    top: 22px;
+    transform: scale(0.42);
+  }
+
+  .lume-dashboard .resume-card--featured .dash-paper-holder,
+  .lume-dashboard .resume-card--featured:hover .dash-paper-holder,
+  .lume-dashboard .resume-card--featured:focus-within .dash-paper-holder {
+    top: 24px;
+    transform: scale(0.42);
+  }
+
+  .lume-dashboard .resume-card--featured .resume-card-content {
+    padding: 26px 24px 24px;
+  }
+
+  .lume-dashboard .resume-card--featured h3 {
+    font-size: clamp(24px, 6vw, 30px);
+  }
+
+  .lume-dashboard .resume-card--featured .resume-card-role {
+    font-size: 14px;
+  }
+
+  .lume-dashboard .resume-card--featured .resume-card-foot {
+    padding-top: 22px;
+  }
+
+  .lume-dashboard .next-move-card h2 {
+    font-size: 27px;
+  }
+
+  .lume-dashboard .dash-empty {
+    min-height: 360px;
+    padding: 40px 24px;
+  }
+
+  .lume-dashboard .dash-empty h2 {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 620px) {
+  .lume-dashboard .workspace-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .lume-dashboard .workspace-metric {
+    border-right: 0;
+    border-bottom: 1px solid var(--dash-line);
+    padding: 16px 20px;
+  }
+
+  .lume-dashboard .workspace-metric:nth-child(3) {
+    border-right: 0;
+    border-bottom: 1px solid var(--dash-line);
+  }
+
+  .lume-dashboard .workspace-metric-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .lume-dashboard .workspace-metric strong {
+    font-size: 27px;
+  }
+
+  .lume-dashboard .workspace-status {
+    border-top: 0;
+    padding: 16px 20px;
+  }
+
+  .lume-dashboard .dash-aside {
+    grid-template-columns: 1fr;
+  }
+
+  .lume-dashboard .next-move-card,
+  .lume-dashboard .demo-note {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .lume-dashboard .dash-main {
+    width: calc(100% - 24px);
+  }
+
+  .lume-dashboard .dash-intro h1 {
+    font-size: 36px;
+  }
+
+  .lume-dashboard .resume-card--featured .dash-paper-frame {
+    height: 220px;
+  }
+
+  .lume-dashboard .dash-paper-holder,
+  .lume-dashboard .resume-card:hover .dash-paper-holder,
+  .lume-dashboard .resume-card:focus-within .dash-paper-holder,
+  .lume-dashboard .resume-card--featured .dash-paper-holder,
+  .lume-dashboard .resume-card--featured:hover .dash-paper-holder,
+  .lume-dashboard .resume-card--featured:focus-within .dash-paper-holder {
+    top: 20px;
+    transform: scale(0.38);
+  }
+
+  .lume-dashboard .resume-card--featured h3 {
+    font-size: 24px;
+  }
+
+  .lume-dashboard .next-move-card {
+    padding: 24px 22px 20px;
+  }
+
+  .lume-dashboard .next-move-card h2 {
+    font-size: 25px;
+  }
+
+  .lume-dashboard .resume-card--new {
+    min-height: 112px;
+    gap: 16px;
+    padding: 16px 20px;
+  }
+
+  .lume-dashboard .resume-new-art {
+    width: 62px;
+    height: 76px;
+  }
+
+  .lume-dashboard .resume-new-sheet {
+    left: 8px;
+  }
+
+  .lume-dashboard .resume-new-plus {
+    transform: translate(10px, 18px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lume-dashboard .dash-intro,
+  .lume-dashboard .workspace-metrics,
+  .lume-dashboard .dash-grid,
+  .lume-dashboard .workspace-status-dot {
+    animation: none;
+  }
+
+  .lume-dashboard .resume-card,
+  .lume-dashboard .resume-card .dash-paper-holder,
+  .lume-dashboard .app-btn {
+    transition-duration: 0.001ms;
+  }
+}

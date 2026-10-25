@@ -4,6 +4,7 @@ import { Geist, Geist_Mono, Instrument_Sans, Quicksand } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next";
 import { ToastProvider } from "@/components/ui/toast";
 import "./globals.css";
+import "./sky.css";
 import "./landing.css";
 
 const geistSans = Geist({

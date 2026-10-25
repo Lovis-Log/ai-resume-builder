@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LoginClient } from "./login-client";
+import "./login.css";
 
 export const metadata: Metadata = {
   title: "Sign in",

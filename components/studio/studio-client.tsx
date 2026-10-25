@@ -26,7 +26,7 @@ import type { WorkspaceTool } from "@/lib/resume/types";
 import { AiPanel } from "./ai-panel";
 import { DesignPanel } from "./design-panel";
 import { ExportDialog } from "./export-dialog";
-import { PreviewPanel } from "./preview-panel";
+import { DEFAULT_ZOOM, PreviewPanel } from "./preview-panel";
 import { ResumeDocument } from "./resume-document";
 import { ScorePanel } from "./score-panel";
 import { StudioTopbar } from "./studio-topbar";
@@ -54,7 +54,7 @@ export function StudioClient() {
 
   const [tool, setTool] = useState<WorkspaceTool>("write");
   const [mobilePreview, setMobilePreview] = useState(false);
-  const [zoom, setZoom] = useState(0.72);
+  const [zoom, setZoom] = useState(DEFAULT_ZOOM);
   const [pageCount, setPageCount] = useState(1);
   const [openSections, setOpenSections] = useState<Set<StudioSection>>(
     () => new Set(INITIAL_SECTIONS),
